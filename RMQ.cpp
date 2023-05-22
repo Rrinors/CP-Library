@@ -3,9 +3,7 @@ struct RMQ {
     const int n;
     std::vector<std::vector<T>> a;
     std::function<T(T, T)> f;
-
-    template<typename F>
-    RMQ(const std::vector<F> &b, std::function<T(T, T)> f) : n(b.size()),
+    RMQ(const std::vector<T> &b, std::function<T(T, T)> f) : n(b.size()),
     f(f), a(32 - __builtin_clz(n), std::vector<T>(n)) {
         int s = 31 - __builtin_clz(n);
         a[0] = b;
@@ -15,7 +13,6 @@ struct RMQ {
             }
         }
     }
-
     T query(int l, int r) {
         int s = 31 - __builtin_clz(r - l + 1);
         return f(a[s][l], a[s][r - (1 << s) + 1]);
