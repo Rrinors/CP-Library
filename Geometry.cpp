@@ -125,12 +125,10 @@ Point<double> intersection(const Line<double> &l1, const Line<double> &l2) {
 }
 
 // Polygon
-template<typename T>
-using Polygon = std::vector<Point<T>>;
 // 0:out  1:on  2:in
 // Polygon vertexes in counter-clockwise order.
 template<typename T>
-constexpr int pointInConvex(const Point<T> &x, const Polygon<T> &a) {
+constexpr int pointInConvex(const Point<T> &x, const std::vector<Point<T>> &a) {
     int n = a.size();
     if (sgn(cross(a[1] - a[0], x - a[0])) < 0 || sgn(cross(a[n - 1] - a[0], x - a[0])) > 0) {
         return 0;
