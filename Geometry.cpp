@@ -1,5 +1,5 @@
 template<typename T>
-static constexpr T eps;
+constexpr T eps;
 
 template<>
 constexpr int eps<int> = 0;
