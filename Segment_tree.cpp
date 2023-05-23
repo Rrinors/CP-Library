@@ -8,7 +8,7 @@ struct SegmentTree {
     SegmentTree(const std::vector<F> &b) : SegmentTree(b.size()) {
         std::function<void(int, int, int)> build = [&](int p, int l, int r) {
             if (l == r) {
-                a[p] = b[l];
+                a[p] = T(b[l]);
                 return;
             }
             int m = (l + r) / 2;
