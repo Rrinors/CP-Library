@@ -120,6 +120,7 @@ double pointLineDist(const Point<double> &p, const Line<double> &l){
     return std::abs(cross(p - l.a, vec(l))) / abs(vec(l));
 }
 Point<double> intersection(const Line<double> &l1, const Line<double> &l2) {
+    assert(sgn(cross(vec(l1), vec(l2))) != 0);
     return l1.a + vec(l1) * cross(l2.a - l1.a, vec(l2)) / cross(vec(l1), vec(l2));
 }
 
