@@ -1,17 +1,17 @@
 template<typename T>
-static T eps;
+static constexpr T eps;
 
 template<>
-int eps<int> = 0;
+constexpr int eps<int> = 0;
 
 template<>
-i64 eps<i64> = 0;
+constexpr i64 eps<i64> = 0;
 
 template<>
-double eps<double> = 1E-6;
+constexpr double eps<double> = 1E-6;
 
 template<>
-long double eps<long double> = 1E-8;
+constexpr long double eps<long double> = 1E-8;
 
 template<typename T>
 constexpr int sgn(T x) {
