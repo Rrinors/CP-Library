@@ -72,13 +72,16 @@ struct Z {
     friend std::ostream &operator<<(std::ostream &os, const Z &rhs) {
         return os << rhs.val();
     }
+    explicit constexpr operator int() const {
+        return a;
+    }
 };
 
 struct Comb {
     int n;
-    vector<Z> _fac;
-    vector<Z> _invfac;
-    vector<Z> _inv;
+    std::vector<Z> _fac;
+    std::vector<Z> _invfac;
+    std::vector<Z> _inv;
     
     Comb() : n{0}, _fac{1}, _invfac{1}, _inv{0} {}
     
