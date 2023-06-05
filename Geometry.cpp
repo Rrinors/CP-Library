@@ -47,11 +47,27 @@ struct Point {
         assert(sgn(k) != 0);
         return {a.x / k, a.y / k};
     }
+    constexpr Point operator*=(T k) {
+        *this = *this * k;
+        return *this;
+    }
+    constexpr Point operator/=(T k) {
+        *this = *this / k;
+        return *this;
+    }
     friend constexpr Point operator+(const Point &a, const Point &b) {
         return Point(a.x + b.x, a.y + b.y);
     }
     friend constexpr Point operator-(const Point &a, const Point &b) {
         return Point(a.x - b.x, a.y - b.y);
+    }
+    constexpr Point operator+=(const Point &b) {
+        *this = *this + b;
+        return *this;
+    }
+    constexpr Point operator-=(const Point &b) {
+        *this = *this - b;
+        return *this;
     }
     friend constexpr T dot(const Point &a, const Point &b) {
         return a.x * b.x + a.y * b.y;
@@ -59,11 +75,11 @@ struct Point {
     friend constexpr T cross(const Point &a, const Point &b) {
         return a.x * b.y - a.y * b.x;
     }
-    friend constexpr T sqabs(const Point &p) {
+    friend constexpr T abs2(const Point &p) {
         return p.x * p.x + p.y * p.y;
     }
     friend constexpr double abs(const Point &p) {
-        return std::sqrt(sqabs(p));
+        return std::sqrt(abs2(p));
     }
     friend constexpr bool operator<(const Point &a, const Point &b) {
         return sgn(a.x - b.x) == 0 ? a.y < b.y : a.x < b.x;
