@@ -131,7 +131,7 @@ bool pointOnLineLeft(Point<T> p, Line<T> l) {
 
 template<typename T>
 constexpr bool pointOnSegment(Point<T> p, Line<T> l) {
-    return cross(p - l.a, l.b - l.a) == 0 && std::min(l.a.x, l.b.x) <= p.x && p.x <= std::max(l.a.x, l.b.x)
+    return sgn(cross(p - l.a, l.b - l.a)) == 0 && std::min(l.a.x, l.b.x) <= p.x && p.x <= std::max(l.a.x, l.b.x)
         && std::min(l.a.y, l.b.y) <= p.y && p.y <= std::max(l.a.y, l.b.y);
 }
 
@@ -158,8 +158,8 @@ std::tuple<int, Point<T>, Point<T>> segmentIntersection(Line<T> l1, Line<T> l2) 
     if (std::min(l1.a.y, l1.b.y) > std::max(l2.a.y, l2.b.y)) {
         return {0, Point<T>(), Point<T>()};
     }
-    if (cross(l1.b - l1.a, l2.b - l2.a) == 0) {
-        if (cross(l1.b - l1.a, l2.a - l1.a) != 0) {
+    if (sgn(cross(l1.b - l1.a, l2.b - l2.a)) == 0) {
+        if (sgn(cross(l1.b - l1.a, l2.a - l1.a)) != 0) {
             return {0, Point<T>(), Point<T>()};
         } else {
             auto maxx1 = std::max(l1.a.x, l1.b.x);
@@ -192,7 +192,7 @@ std::tuple<int, Point<T>, Point<T>> segmentIntersection(Line<T> l1, Line<T> l2) 
     }
     
     Point p = lineIntersection(l1, l2);
-    if (cp1 != 0 && cp2 != 0 && cp3 != 0 && cp4 != 0) {
+    if (sgn(cp1) != 0 && sgn(cp2) != 0 && sgn(cp3) != 0 && sgn(cp4) != 0) {
         return {1, p, p};
     } else {
         return {3, p, p};
