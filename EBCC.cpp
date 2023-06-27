@@ -1,12 +1,14 @@
 std::pair<int, std::vector<int>> EBCC(auto &adj) {
     int n = adj.size();
     std::vector<int> dfn(n, -1), low(n), id(n), stk;
-    std::vector<bool> vis;
+    std::vector<bool> vis(1);
     int now = 0, cnt = 0;
     
     auto check = [&](int x) {
-        if (x >= vis.size()) {
-            vis.resize(x + 1);
+        int sz = vis.size();
+        if (x >= sz) {
+            sz *= 2;
+            vis.resize(sz);
         }
         return vis[x];
     };
