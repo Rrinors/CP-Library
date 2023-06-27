@@ -4,16 +4,16 @@ struct ACAM {
     int cnt;
     std::vector<std::array<int, ALPHABET_SIZE>> _trie;
     std::vector<int> _fail;
-    ACAM() : cnt(0), _trie(1), _fail(1) {}
+    ACAM() : cnt(1), _trie(1), _fail(1) {}
 
     int newNode() {
         int sz = _trie.size();
-        if (++cnt >= sz) {
+        if (cnt >= sz) {
             sz *= 2;
             _trie.resize(sz);
             _fail.resize(sz);
         }
-        return cnt;
+        return cnt++;
     }
     int insert(const std::string &s) {
         int p = 0;
