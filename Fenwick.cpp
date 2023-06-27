@@ -1,9 +1,7 @@
-
 template<typename T>
 struct Fenwick {
     const int n;
     std::vector<T> a;
-
     Fenwick(int n) : n(n), a(n) {}
     template<typename F>
     Fenwick(const std::vector<F> &b) : Fenwick(b.size()) {
