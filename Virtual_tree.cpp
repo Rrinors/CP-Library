@@ -33,9 +33,6 @@
     };
 
     for (now = 0; now < n; now++) {
-        if (g[now].empty()) {
-            continue;
-        }
         build(g[now]);
         dfs(dfs, 0, 0);
         // calc ans
