@@ -100,6 +100,9 @@ struct MInt {
     friend constexpr bool operator!=(MInt lhs, MInt rhs) {
         return lhs.val() != rhs.val();
     }
+    friend constexpr bool operator<(MInt lhs, MInt rhs) {
+        return lhs.val() < rhs.val();
+    }
 };
  
 template<>
