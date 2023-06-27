@@ -1,4 +1,3 @@
-
 template<class T, int N>
 struct SeqLinearBasis {
     std::array<T, N> p;
