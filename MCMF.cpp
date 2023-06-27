@@ -1,9 +1,8 @@
-
 template<typename T, typename U>
-struct CostFlow {
+struct MCMF {
     const int n;
-    static constexpr T maxT = std::numeric_limits<T>::max();
-    static constexpr U maxU = std::numeric_limits<U>::max();
+    static constexpr T T_MAX = std::numeric_limits<T>::max();
+    static constexpr U U_MAX = std::numeric_limits<U>::max();
     
     struct Edge {
         int to;
@@ -16,7 +15,7 @@ struct CostFlow {
     std::vector<U> dis;
     std::vector<int> p;
     std::vector<bool> vis;
-    CostFlow(int n) : n(n), g(n), vis(n) {}
+    MCMF(int n) : n(n), g(n), vis(n) {}
 
     void addEdge(int u, int v, T cap, U cost) {
         g[u].push_back(e.size());
@@ -25,7 +24,7 @@ struct CostFlow {
         e.emplace_back(u, 0, -cost);
     }
     U spfa(int s, int t) {
-        dis.assign(n, maxU);
+        dis.assign(n, U_MAX);
         p.assign(n, -1);
         std::queue<int> q;
         q.push(s);
@@ -48,11 +47,11 @@ struct CostFlow {
         }
         return dis[t];
     }
-    std::pair<T, U> MCMF(int s, int t) {
+    std::pair<T, U> work(int s, int t) {
         T maxFlow = 0;
         U minCost = 0;
-        for (U d = spfa(s, t); d != maxU; d = spfa(s, t)) {
-            T x = maxT;
+        for (U d = spfa(s, t); d != U_MAX; d = spfa(s, t)) {
+            T x = T_MAX;
             for (int i = p[t]; i != -1; i = p[e[i ^ 1].to]) {
                 x = std::min(x, e[i].cap);
             }
