@@ -1,54 +1,55 @@
-constexpr int N = 1000000;
+template<int ALPHABET_SIZE = 26,
+    int offset = 'a'>
+struct ACAM {
+    int cnt;
+    std::vector<std::array<int, ALPHABET_SIZE>> _trie;
+    std::vector<int> _fail;
+    ACAM() : cnt(0), _trie(1), _fail(1) {}
 
-int tot;
-int trie[N][26], fail[N], cnt[N];
-
-int newNode() {
-    tot++;
-    std::fill(trie[tot], trie[tot] + 26, 0);
-    fail[tot] = cnt[tot] = 0;
-    return tot;
-}
-
-void insert(std::std::string &s) {
-    int p = 0;
-    for (auto x : s) {
-        if (!trie[p][x - 'a']) {
-            trie[p][x - 'a'] = newNode();
+    int newNode() {
+        int sz = _trie.size();
+        if (++cnt >= sz) {
+            sz *= 2;
+            _trie.resize(sz);
+            _fail.resize(sz);
         }
-        p = trie[p][x - 'a'];
+        return cnt;
     }
-    cnt[p]++;
-}
-
-void work() {
-    std::queue<int> q;
-    q.push(0);
-
-    while (!q.empty()) {
-        int u = q.front();
-        q.pop();
-        for (int i = 0; i < 26; i++) {
-            if (trie[u][i]) {
-                if (u) {
-                    fail[trie[u][i]] = trie[fail[u]][i];
+    int insert(const std::string &s) {
+        int p = 0;
+        for (auto c : s) {
+            if (!_trie[p][c - offset]) {
+                _trie[p][c - offset] = newNode();
+            }
+            p = _trie[p][c - offset];
+        }
+        return p;
+    }
+    void work() {
+        std::queue<int> q;
+        q.push(0);
+        while (!q.empty()) {
+            int u = q.front();
+            q.pop();
+            for (int i = 0; i < ALPHABET_SIZE; i++) {
+                if (_trie[u][i]) {
+                    if (u) {
+                        _fail[_trie[u][i]] = _trie[_fail[u]][i];
+                    }
+                    q.push(_trie[u][i]);
+                } else {
+                    _trie[u][i] = _trie[_fail[u]][i];
                 }
-                q.push(trie[u][i]);
-            } else {
-                trie[u][i] = trie[fail[u]][i];
             }
         }
     }
-}
-
-int match(std::string &s) {
-    int u = 0, ans = 0;
-    for (auto x : s) {
-        u = trie[u][x - 'a'];
-        for (int v = u; v && cnt[v] != -1; v = fail[v]) {
-            ans += cnt[v];
-            cnt[v] = -1;
-        }
+    int trie(int p, int c) const {
+        return _trie[p][c];
     }
-    return ans;
-}
+    int fail(int p) const {
+        return _fail[p];
+    }
+    int size() const {
+        return cnt;
+    }
+};
