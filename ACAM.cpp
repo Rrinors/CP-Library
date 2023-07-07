@@ -1,27 +1,22 @@
-template<int ALPHABET_SIZE = 26,
-    int offset = 'a'>
+template<int ALPHABET = 26,
+    char offset = 'a'>
 struct ACAM {
-    int cnt;
-    std::vector<std::array<int, ALPHABET_SIZE>> _trie;
-    std::vector<int> _fail;
-    ACAM() : cnt(1), _trie(1), _fail(1) {}
+    std::vector<std::array<int, ALPHABET>> t;
+    std::vector<int> f;
+    ACAM() : t(1), f(1) {}
 
     int newNode() {
-        int sz = _trie.size();
-        if (cnt >= sz) {
-            sz *= 2;
-            _trie.resize(sz);
-            _fail.resize(sz);
-        }
-        return cnt++;
+        t.emplace_back();
+        f.emplace_back();
+        return t.size() - 1;
     }
     int insert(const std::string &s) {
         int p = 0;
         for (auto c : s) {
-            if (!_trie[p][c - offset]) {
-                _trie[p][c - offset] = newNode();
+            if (!t[p][c - offset]) {
+                t[p][c - offset] = newNode();
             }
-            p = _trie[p][c - offset];
+            p = t[p][c - offset];
         }
         return p;
     }
@@ -29,27 +24,28 @@ struct ACAM {
         std::queue<int> q;
         q.push(0);
         while (!q.empty()) {
-            int u = q.front();
+            int p = q.front();
             q.pop();
-            for (int i = 0; i < ALPHABET_SIZE; i++) {
-                if (_trie[u][i]) {
-                    if (u) {
-                        _fail[_trie[u][i]] = _trie[_fail[u]][i];
+            for (int i = 0; i < ALPHABET; i++) {
+                if (t[p][i]) {
+                    if (p) {
+                        f[t[p][i]] = t[f[p]][i];
                     }
-                    q.push(_trie[u][i]);
+                    q.push(t[p][i]);
                 } else {
-                    _trie[u][i] = _trie[_fail[u]][i];
+                    t[p][i] = t[f[p]][i];
                 }
             }
         }
     }
-    int trie(int p, int c) const {
-        return _trie[p][c];
+
+    int next(int p, int i) const {
+        return t[p][i];
     }
     int fail(int p) const {
-        return _fail[p];
+        return f[p];
     }
     int size() const {
-        return cnt;
+        return t.size();
     }
 };
