@@ -8,9 +8,6 @@ struct SuffixArray {
         height.resize(n);
         int m = 128;
         std::vector<int> cnt(std::max(n, m));
-        for (int i = 0; i < m; i++) {
-            cnt[i] = 0;
-        }
         for (int i = 0; i < n; i++) {
             cnt[rk[i] = s[i]]++;
         }
