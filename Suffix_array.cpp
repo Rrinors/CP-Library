@@ -57,5 +57,17 @@ struct SuffixArray {
                 rk[sa[i]] = cmp(sa[i - 1], sa[i], w) ? p - 1: p++;
             }
         }
+        for (int i = 0, k = 0; i < n; i++) {
+            if (rk[i] == 0) {
+                continue;
+            }
+            if (k) {
+                k--;
+            }
+            while (i + k < n && sa[rk[i] - 1] + k < n && s[i + k] == s[sa[rk[i] - 1] + k]) {
+                k++;
+            }
+            height[rk[i]] = k;
+        }
     }
 };
