@@ -1,12 +1,11 @@
 struct SuffixArray {
     int n;
     std::vector<int> sa, rk, height;
-    SuffixArray(const std::string &s) {
-        n = s.length();
+    SuffixArray(auto &s, int m = 128) {
+        n = s.size();
         sa.resize(n);
         rk.resize(n);
         height.resize(n);
-        int m = 128;
         std::vector<int> cnt(std::max(n, m));
         for (int i = 0; i < n; i++) {
             cnt[rk[i] = s[i]]++;
