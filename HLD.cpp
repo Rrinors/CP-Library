@@ -1,25 +1,6 @@
-struct HLD {
-    int n, cur;
-    std::vector<std::vector<int>> adj;
-    std::vector<int> siz, top, dep, parent, dfn, seq;
 
-    HLD(int n) {
-        this->n = n;
-        siz.resize(n);
-        top.resize(n);
-        dep.resize(n);
-        parent.resize(n);
-        dfn.resize(n);
-        seq.resize(n);
-        cur = 0;
-        adj.assign(n, {});
-    }
-    
-    void addEdge(int u, int v) {
-        adj[u].push_back(v);
-        adj[v].push_back(u);
-    }
-    void dfs1(int u) {
+    std::vector<int> parent(n), dep(n), siz(n);
+    auto dfs1 = [&](auto self, int u) -> void {
         if (parent[u] != -1) {
             adj[u].erase(std::find(adj[u].begin(), adj[u].end(), parent[u]));
         }
@@ -27,29 +8,32 @@ struct HLD {
         for (auto &v : adj[u]) {
             parent[v] = u;
             dep[v] = dep[u] + 1;
-            dfs1(v);
+            self(self, v);
             siz[u] += siz[v];
             if (siz[v] > siz[adj[u][0]]) {
                 std::swap(v, adj[u][0]);
             }
         }
-    }
-    void dfs2(int u) {
+    };
+
+    parent[0] = -1;
+    dfs1(dfs1, 0);
+
+    std::vector<int> top(n), dfn(n), seq(n);
+    int cur = 0;
+    auto dfs2 = [&](auto self, int u) -> void {
         dfn[u] = cur++;
         seq[dfn[u]] = u;
         for (auto v : adj[u]) {
             top[v] = v == adj[u][0] ? top[u] : v;
-            dfs2(v);
+            self(self, v);
         }
-    }
-    void work(int rt = 0) {
-        top[rt] = rt;
-        dep[rt] = 0;
-        parent[rt] = -1;
-        dfs1(rt);
-        dfs2(rt);
-    }
-    int lca(int u, int v) {
+    };
+
+    top[0] = 0;
+    dfs2(dfs2, 0);
+
+    auto lca = [&](int u, int v) {
         while (top[u] != top[v]) {
             if (dep[top[u]] > dep[top[v]]) {
                 u = parent[top[u]];
@@ -58,11 +42,13 @@ struct HLD {
             }
         }
         return dep[u] < dep[v] ? u : v;
-    }
-    int dist(int u, int v) {
+    };
+
+    auto dist = [&](int u, int v) {
         return dep[u] + dep[v] - 2 * dep[lca(u, v)];
-    }
-    int jump(int u, int k) {
+    };
+
+    auto jump = [&](int u, int k) {
         if (dep[u] < k) {
             return -1;
         }
@@ -71,11 +57,13 @@ struct HLD {
             u = parent[top[u]];
         }   
         return seq[dfn[u] - dep[u] + d];
-    }
-    bool isAncester(int u, int v) {
+    };
+
+    auto isAncester = [&](int u, int v) {
         return dfn[v] >= dfn[u] && dfn[v] < dfn[u] + siz[u];
-    }
-    int rootedParent(int u, int v) {
+    };
+
+    auto rootedParent = [&](int u, int v) {
         if (u == v) {
             return u;
         }
@@ -86,8 +74,9 @@ struct HLD {
             return dfn[x] < dfn[y];
         }) - 1;
         return *it;
-    }
-    int rootedSize(int u, int v) {
+    };
+
+    auto rootedSize = [&](int u, int v) {
         if (u == v) {
             return n;
         }
@@ -95,8 +84,8 @@ struct HLD {
             return siz[v];
         }
         return n - siz[rootedParent(u, v)];
-    }
-    int rootedLca(int a, int b, int c) {
+    };
+
+    auto rootedLca = [&](int a, int b, int c) {
         return lca(a, b) ^ lca(b, c) ^ lca(c, a);
-    }
-};
+    };
