@@ -29,7 +29,7 @@ struct Point {
     template<class U>
     constexpr Point(U x_ = 0, U y_ = 0) : x{x_}, y{y_} {}
     template<class U>
-    explicit constexpr Point(Point<U> p_) : x{p_.x}, y{p_.y} {}
+    explicit constexpr Point(Point<U> p_) : x{T(p_.x)}, y{T(p_.y)} {}
 
     constexpr Point &operator+=(Point p) & {
         x += p.x;
@@ -122,7 +122,7 @@ struct Line {
     template<class U>
     constexpr Line(Point<U> a_, Point<U> b_) : a{a_}, b{b_} {}
     template<class U>
-    explicit constexpr Line(Line<U> l_) : a{l_.a}, b{l_.a} {}
+    explicit constexpr Line(Line<U> l_) : a{Point<T>(l_.a)}, b{Point<T>(l_.a)} {}
 
     friend constexpr std::ostream &operator<<(std::ostream &os, Line l) {
         return os << l.a << " -- " << l.b;
