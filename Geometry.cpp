@@ -1,4 +1,4 @@
-template<typename T>
+template<class T>
 constexpr T eps;
 
 template<>
@@ -10,10 +10,7 @@ constexpr i64 eps<i64> = 0;
 template<>
 constexpr double eps<double> = 1E-6;
 
-template<>
-constexpr long double eps<long double> = 1E-8;
-
-template<typename T>
+template<class T>
 constexpr int sgn(T x) {
     if (x > eps<T>) {
         return 1;
@@ -24,14 +21,14 @@ constexpr int sgn(T x) {
     return 0;
 }
 
-template<typename T>
+template<class T>
 struct Point {
     T x;
     T y;
     constexpr Point() : x{}, y{} {}
-    template<typename U>
+    template<class U>
     constexpr Point(U x_ = 0, U y_ = 0) : x{x_}, y{y_} {}
-    template<typename U>
+    template<class U>
     explicit constexpr Point(Point<U> p_) : x{p_.x}, y{p_.y} {}
 
     constexpr Point &operator+=(Point p) & {
@@ -87,32 +84,32 @@ struct Point {
     }
 };
 
-template<typename T>
+template<class T>
 constexpr T dot(Point<T> a, Point<T> b) {
     return a.x * b.x + a.y * b.y;
 }
  
-template<typename T>
+template<class T>
 constexpr T cross(Point<T> a, Point<T> b) {
     return a.x * b.y - a.y * b.x;
 }
 
-template<typename T>
-T square(Point<T> p) {
+template<class T>
+constexpr T square(Point<T> p) {
     return dot(p, p);
 }
  
-template<typename T>
-double length(Point<T> p) {
+template<class T>
+constexpr double length(Point<T> p) {
     return std::sqrt(square(p));
 }
 
-template<typename T>
+template<class T>
 constexpr Point<T> vertical(Point<T> p) {
     return {-p.y, p.x};
 }
 
-template<typename T>
+template<class T>
 constexpr Point<double> rotate(Point<T> p, double t) {
     return {p.x * std::cos(t) - p.y * std::sin(t), p.x * std::sin(t) + p.y * std::cos(t)};
 }
@@ -122,29 +119,33 @@ struct Line {
     Point<T> a;
     Point<T> b;
     constexpr Line() : a{}, b{} {}
-    template<typename U>
+    template<class U>
     constexpr Line(Point<U> a_, Point<U> b_) : a{a_}, b{b_} {}
-    template<typename U>
+    template<class U>
     explicit constexpr Line(Line<U> l_) : a{l_.a}, b{l_.a} {}
+
+    friend constexpr std::ostream &operator<<(std::ostream &os, Line l) {
+        return os << l.a << " -- " << l.b;
+    }
 };
 
 template<class T>
-bool pointOnLineLeft(Point<T> p, Line<T> l) {
+constexpr bool pointOnLineLeft(Point<T> p, Line<T> l) {
     return sgn(cross(l.b - l.a, p - l.a)) > 0;
 }
 
-template<typename T>
+template<class T>
 constexpr bool pointOnSegment(Point<T> p, Line<T> l) {
     return sgn(cross(p - l.a, l.b - l.a)) == 0 && std::min(l.a.x, l.b.x) <= p.x && p.x <= std::max(l.a.x, l.b.x)
         && std::min(l.a.y, l.b.y) <= p.y && p.y <= std::max(l.a.y, l.b.y);
 }
 
-template<typename T>
+template<class T>
 constexpr Point<T> lineIntersection(Line<T> l1, Line<T> l2) {
-    return l1.a + (l1.b - l1.a) * (cross(l2.b - l2.a, l1.a - l2.a) / cross(l2.b - l2.a, l1.a - l1.b));
+    return l1.a + (l1.b - l1.a) * cross(l2.b - l2.a, l1.a - l2.a) / cross(l2.b - l2.a, l1.a - l1.b);
 }
 
-template<typename T>
+template<class T>
 constexpr T pointLineDistance(Point<T> p, Line<T> l){
     if (l.a == l.b) {
         return length(p - l.a);
@@ -157,7 +158,7 @@ constexpr T pointLineDistance(Point<T> p, Line<T> l){
 // 2 : overlap
 // 3 : intersect at endpoint
 template<class T>
-std::tuple<int, Point<T>, Point<T>> segmentIntersection(Line<T> l1, Line<T> l2) {
+constexpr std::tuple<int, Point<T>, Point<T>> segmentIntersection(Line<T> l1, Line<T> l2) {
     if (std::max(l1.a.x, l1.b.x) < std::min(l2.a.x, l2.b.x)) {
         return {0, Point<T>(), Point<T>()};
     }
@@ -170,8 +171,8 @@ std::tuple<int, Point<T>, Point<T>> segmentIntersection(Line<T> l1, Line<T> l2) 
     if (std::min(l1.a.y, l1.b.y) > std::max(l2.a.y, l2.b.y)) {
         return {0, Point<T>(), Point<T>()};
     }
-    if (cross(l1.b - l1.a, l2.b - l2.a) == 0) {
-        if (cross(l1.b - l1.a, l2.a - l1.a) != 0) {
+    if (sgn(cross(l1.b - l1.a, l2.b - l2.a)) == 0) {
+        if (sgn(cross(l1.b - l1.a, l2.a - l1.a)) != 0) {
             return {0, Point<T>(), Point<T>()};
         } else {
             auto maxx1 = std::max(l1.a.x, l1.b.x);
@@ -211,7 +212,7 @@ std::tuple<int, Point<T>, Point<T>> segmentIntersection(Line<T> l1, Line<T> l2) 
     }
 }
 
-template<typename T>
+template<class T>
 constexpr bool pointInPolygon(Point<T> a, std::vector<Point<T>> &p) {
     int n = p.size();
     for (int i = 0; i < n; i++) {
@@ -237,7 +238,7 @@ constexpr bool pointInPolygon(Point<T> a, std::vector<Point<T>> &p) {
 // 0 : out
 // 1 : on
 // 2 : in
-template<typename T>
+template<class T>
 constexpr int pointInConvex(Point<T> x, std::vector<Point<T>> &a) {
     int n = a.size();
     if (sgn(cross(a[1] - a[0], x - a[0])) < 0 || sgn(cross(a[n - 1] - a[0], x - a[0])) > 0) {
@@ -264,7 +265,7 @@ constexpr int pointInConvex(Point<T> x, std::vector<Point<T>> &a) {
     return 0;
 }
 
-template<typename T>
+template<class T>
 constexpr bool segmentInPolygon(Line<T> l, std::vector<Point<T>> &p) {
     int n = p.size();
     if (!pointInPolygon(l.a, p)) {
