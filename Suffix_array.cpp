@@ -2,6 +2,11 @@ struct SuffixArray {
     int n;
     std::vector<int> sa, rk, height;
     SuffixArray(auto &s, int m = 128) {
+        init(s, m);
+    }
+    SuffixArray() {}
+
+    void init(auto &s, int m = 128) {
         n = s.size();
         sa.resize(n);
         rk.resize(n);
