@@ -32,7 +32,7 @@ struct Point {
     template<typename U>
     constexpr Point(U x_ = 0, U y_ = 0) : x{x_}, y{y_} {}
     template<typename U>
-    constexpr Point(Point<U> p_) : x{p_.x}, y{p_.y} {}
+    explicit constexpr Point(Point<U> p_) : x{p_.x}, y{p_.y} {}
 
     constexpr Point &operator+=(Point p) & {
         x += p.x;
@@ -76,6 +76,9 @@ struct Point {
     friend constexpr bool operator==(Point a, Point b) {
         return sgn(a.x - b.x) == 0 && sgn(a.y - b.y) == 0;
     }
+    friend constexpr bool operator<(Point a, Point b) {
+        return sgn(a.x - b.x) == 0 ? a.y < b.y : a.x < b.x;
+    }
     friend constexpr std::istream &operator>>(std::istream &is, Point &p) {
         return is >> p.x >> p.y;
     }
@@ -101,15 +104,16 @@ T square(Point<T> p) {
  
 template<typename T>
 double length(Point<T> p) {
-    return std::sqrt(double(square(p)));
+    return std::sqrt(square(p));
 }
 
 template<typename T>
-constexpr Point<T> rotate(Point<T> p) {
+constexpr Point<T> vertical(Point<T> p) {
     return {-p.y, p.x};
 }
 
-constexpr Point<double> rotate(Point<double> p, double t) {
+template<typename T>
+constexpr Point<double> rotate(Point<T> p, double t) {
     return {p.x * std::cos(t) - p.y * std::sin(t), p.x * std::sin(t) + p.y * std::cos(t)};
 }
 
@@ -121,12 +125,12 @@ struct Line {
     template<typename U>
     constexpr Line(Point<U> a_, Point<U> b_) : a{a_}, b{b_} {}
     template<typename U>
-    constexpr Line(Line<U> l_) : a{l_.a}, b{l_.a} {}
+    explicit constexpr Line(Line<U> l_) : a{l_.a}, b{l_.a} {}
 };
 
 template<class T>
 bool pointOnLineLeft(Point<T> p, Line<T> l) {
-    return cross(l.b - l.a, p - l.a) > 0;
+    return sgn(cross(l.b - l.a, p - l.a)) > 0;
 }
 
 template<typename T>
@@ -140,11 +144,19 @@ constexpr Point<T> lineIntersection(Line<T> l1, Line<T> l2) {
     return l1.a + (l1.b - l1.a) * (cross(l2.b - l2.a, l1.a - l2.a) / cross(l2.b - l2.a, l1.a - l1.b));
 }
 
+template<typename T>
+constexpr T pointLineDistance(Point<T> p, Line<T> l){
+    if (l.a == l.b) {
+        return length(p - l.a);
+    }
+    return std::abs(cross(p - l.a, l.b - l.a)) / length(l.b - l.a);
+}
+
 // 0 : not intersect
 // 1 : strictly intersect
 // 2 : overlap
 // 3 : intersect at endpoint
-template<typename T>
+template<class T>
 std::tuple<int, Point<T>, Point<T>> segmentIntersection(Line<T> l1, Line<T> l2) {
     if (std::max(l1.a.x, l1.b.x) < std::min(l2.a.x, l2.b.x)) {
         return {0, Point<T>(), Point<T>()};
@@ -158,8 +170,8 @@ std::tuple<int, Point<T>, Point<T>> segmentIntersection(Line<T> l1, Line<T> l2) 
     if (std::min(l1.a.y, l1.b.y) > std::max(l2.a.y, l2.b.y)) {
         return {0, Point<T>(), Point<T>()};
     }
-    if (sgn(cross(l1.b - l1.a, l2.b - l2.a)) == 0) {
-        if (sgn(cross(l1.b - l1.a, l2.a - l1.a)) != 0) {
+    if (cross(l1.b - l1.a, l2.b - l2.a) == 0) {
+        if (cross(l1.b - l1.a, l2.a - l1.a) != 0) {
             return {0, Point<T>(), Point<T>()};
         } else {
             auto maxx1 = std::max(l1.a.x, l1.b.x);
@@ -182,22 +194,23 @@ std::tuple<int, Point<T>, Point<T>> segmentIntersection(Line<T> l1, Line<T> l2) 
             }
         }
     }
-    auto cp1 = cross(l2.a - l1.a, l2.b - l1.a);
-    auto cp2 = cross(l2.a - l1.b, l2.b - l1.b);
-    auto cp3 = cross(l1.a - l2.a, l1.b - l2.a);
-    auto cp4 = cross(l1.a - l2.b, l1.b - l2.b);
+    auto cp1 = sgn(cross(l2.a - l1.a, l2.b - l1.a));
+    auto cp2 = sgn(cross(l2.a - l1.b, l2.b - l1.b));
+    auto cp3 = sgn(cross(l1.a - l2.a, l1.b - l2.a));
+    auto cp4 = sgn(cross(l1.a - l2.b, l1.b - l2.b));
     
     if ((cp1 > 0 && cp2 > 0) || (cp1 < 0 && cp2 < 0) || (cp3 > 0 && cp4 > 0) || (cp3 < 0 && cp4 < 0)) {
         return {0, Point<T>(), Point<T>()};
     }
     
     Point p = lineIntersection(l1, l2);
-    if (sgn(cp1) != 0 && sgn(cp2) != 0 && sgn(cp3) != 0 && sgn(cp4) != 0) {
+    if (cp1 != 0 && cp2 != 0 && cp3 != 0 && cp4 != 0) {
         return {1, p, p};
     } else {
         return {3, p, p};
     }
 }
+
 template<typename T>
 constexpr bool pointInPolygon(Point<T> a, std::vector<Point<T>> &p) {
     int n = p.size();
@@ -221,9 +234,9 @@ constexpr bool pointInPolygon(Point<T> a, std::vector<Point<T>> &p) {
 }
 
 // counter-clockwise order
-// 0 : outside
-// 1 : on side
-// 2 : inside
+// 0 : out
+// 1 : on
+// 2 : in
 template<typename T>
 constexpr int pointInConvex(Point<T> x, std::vector<Point<T>> &a) {
     int n = a.size();
@@ -252,9 +265,78 @@ constexpr int pointInConvex(Point<T> x, std::vector<Point<T>> &a) {
 }
 
 template<typename T>
-constexpr T pointLineDistance(Point<T> p, Line<T> l){
-    if (l.a == l.b) {
-        return length(p - l.a);
+constexpr bool segmentInPolygon(Line<T> l, std::vector<Point<T>> &p) {
+    int n = p.size();
+    if (!pointInPolygon(l.a, p)) {
+        return false;
     }
-    return std::abs(cross(p - l.a, l.b - l.a)) / length(l.b - l.a);
+    if (!pointInPolygon(l.b, p)) {
+        return false;
+    }
+    for (int i = 0; i < n; i++) {
+        auto u = p[i];
+        auto v = p[(i + 1) % n];
+        auto w = p[(i + 2) % n];
+        auto [t, p1, p2] = segmentIntersection(l, Line(u, v));
+        
+        if (t == 1) {
+            return false;
+        }
+        if (t == 0) {
+            continue;
+        }
+        if (t == 2) {
+            if (pointOnSegment(v, l) && v != l.a && v != l.b) {
+                if (cross(v - u, w - v) > 0) {
+                    return false;
+                }
+            }
+        } else {
+            if (p1 != u && p1 != v) {
+                if (pointOnLineLeft(l.a, Line(v, u))
+                    || pointOnLineLeft(l.b, Line(v, u))) {
+                    return false;
+                }
+            } else if (p1 == v) {
+                if (l.a == v) {
+                    if (pointOnLineLeft(u, l)) {
+                        if (pointOnLineLeft(w, l)
+                            && pointOnLineLeft(w, Line(u, v))) {
+                            return false;
+                        }
+                    } else {
+                        if (pointOnLineLeft(w, l)
+                            || pointOnLineLeft(w, Line(u, v))) {
+                            return false;
+                        }
+                    }
+                } else if (l.b == v) {
+                    if (pointOnLineLeft(u, Line(l.b, l.a))) {
+                        if (pointOnLineLeft(w, Line(l.b, l.a))
+                            && pointOnLineLeft(w, Line(u, v))) {
+                            return false;
+                        }
+                    } else {
+                        if (pointOnLineLeft(w, Line(l.b, l.a))
+                            || pointOnLineLeft(w, Line(u, v))) {
+                            return false;
+                        }
+                    }
+                } else {
+                    if (pointOnLineLeft(u, l)) {
+                        if (pointOnLineLeft(w, Line(l.b, l.a))
+                            || pointOnLineLeft(w, Line(u, v))) {
+                            return false;
+                        }
+                    } else {
+                        if (pointOnLineLeft(w, l)
+                            || pointOnLineLeft(w, Line(u, v))) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return true;
 }
