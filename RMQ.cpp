@@ -2,14 +2,13 @@ template<typename T>
 struct RMQ {
     int n;
     std::vector<std::vector<T>> a;
-    std::function<T(T, T)> f;
-    RMQ(const std::vector<T> &b, const std::function<T(T, T)> &f) {
-        init(b, f);
+    const std::function<T(T, T)> f;
+    RMQ(const std::vector<T> &b, std::function<T(T, T)> f) : f(f) {
+        init(b);
     }
-    RMQ() {}
+    RMQ(std::function<T(T, T)> f) : f(f) {}
 
-    void init(const std::vector<T> &b, const std::function<T(T, T)> &f) {
-        this->f = f;
+    void init(const std::vector<T> &b) {
         n = b.size();
         int s = 31 - __builtin_clz(n);
         a.assign(s + 1, std::vector<T>(n));
