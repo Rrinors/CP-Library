@@ -21,7 +21,6 @@ struct SuffixArray {
         for (int i = n - 1; i >= 0; i--) {
             sa[--cnt[rk[i]]] = i;
         }
-        int p;
         std::vector<int> id(n), key(n);
         auto cmp = [&](int x, int y, int w) {
             if (id[x] != id[y]) {
@@ -31,7 +30,7 @@ struct SuffixArray {
             y = y + w < n ? id[y + w] : -1;
             return x == y;
         };
-        for (int w = 1; p < n; w *= 2, m = p) {
+        for (int w = 1, p = 0; p < n; w *= 2, m = p) {
             p = 0;
             for (int i = n - w; i < n; i++) {
                 id[p++] = i;
