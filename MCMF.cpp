@@ -1,9 +1,6 @@
 template<typename T, typename U>
 struct MCMF {
     const int n;
-    static constexpr T T_MAX = std::numeric_limits<T>::max();
-    static constexpr U U_MAX = std::numeric_limits<U>::max();
-    
     struct Edge {
         int to;
         T cap;
@@ -24,7 +21,7 @@ struct MCMF {
         e.emplace_back(u, 0, -cost);
     }
     U spfa(int s, int t) {
-        dis.assign(n, U_MAX);
+        dis.assign(n, std::numeric_limits<U>::max());
         p.assign(n, -1);
         std::queue<int> q;
         q.push(s);
@@ -50,8 +47,8 @@ struct MCMF {
     std::pair<T, U> work(int s, int t) {
         T maxFlow = 0;
         U minCost = 0;
-        for (U d = spfa(s, t); d != U_MAX; d = spfa(s, t)) {
-            T x = T_MAX;
+        for (U d = spfa(s, t); d != std::numeric_limits<U>::max(); d = spfa(s, t)) {
+            T x = std::numeric_limits<T>::max();
             for (int i = p[t]; i != -1; i = p[e[i ^ 1].to]) {
                 x = std::min(x, e[i].cap);
             }
