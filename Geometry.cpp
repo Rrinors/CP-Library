@@ -216,7 +216,7 @@ template<class T>
 constexpr bool pointInPolygon(Point<T> a, std::vector<Point<T>> &p) {
     int n = p.size();
     for (int i = 0; i < n; i++) {
-        if (pointOnSegment(a, Line(p[i], p[(i + 1) % n]))) {
+        if (pointOnSegment(a, Line<T>(p[i], p[(i + 1) % n]))) {
             return true;
         }
     }
@@ -224,10 +224,10 @@ constexpr bool pointInPolygon(Point<T> a, std::vector<Point<T>> &p) {
     for (int i = 0; i < n; i++) {
         auto u = p[i];
         auto v = p[(i + 1) % n];
-        if (u.x < a.x && v.x >= a.x && pointOnLineLeft(a, Line(v, u))) {
+        if (u.x < a.x && v.x >= a.x && pointOnLineLeft(a, Line<T>(v, u))) {
             t ^= 1;
         }
-        if (u.x >= a.x && v.x < a.x && pointOnLineLeft(a, Line(u, v))) {
+        if (u.x >= a.x && v.x < a.x && pointOnLineLeft(a, Line<T>(u, v))) {
             t ^= 1;
         }
     }
@@ -278,7 +278,7 @@ constexpr bool segmentInPolygon(Line<T> l, std::vector<Point<T>> &p) {
         auto u = p[i];
         auto v = p[(i + 1) % n];
         auto w = p[(i + 2) % n];
-        auto [t, p1, p2] = segmentIntersection(l, Line(u, v));
+        auto [t, p1, p2] = segmentIntersection(l, Line<T>(u, v));
         
         if (t == 1) {
             return false;
@@ -294,44 +294,44 @@ constexpr bool segmentInPolygon(Line<T> l, std::vector<Point<T>> &p) {
             }
         } else {
             if (p1 != u && p1 != v) {
-                if (pointOnLineLeft(l.a, Line(v, u))
-                    || pointOnLineLeft(l.b, Line(v, u))) {
+                if (pointOnLineLeft(l.a, Line<T>(v, u))
+                    || pointOnLineLeft(l.b, Line<T>(v, u))) {
                     return false;
                 }
             } else if (p1 == v) {
                 if (l.a == v) {
                     if (pointOnLineLeft(u, l)) {
                         if (pointOnLineLeft(w, l)
-                            && pointOnLineLeft(w, Line(u, v))) {
+                            && pointOnLineLeft(w, Line<T>(u, v))) {
                             return false;
                         }
                     } else {
                         if (pointOnLineLeft(w, l)
-                            || pointOnLineLeft(w, Line(u, v))) {
+                            || pointOnLineLeft(w, Line<T>(u, v))) {
                             return false;
                         }
                     }
                 } else if (l.b == v) {
-                    if (pointOnLineLeft(u, Line(l.b, l.a))) {
-                        if (pointOnLineLeft(w, Line(l.b, l.a))
-                            && pointOnLineLeft(w, Line(u, v))) {
+                    if (pointOnLineLeft(u, Line<T>(l.b, l.a))) {
+                        if (pointOnLineLeft(w, Line<T>(l.b, l.a))
+                            && pointOnLineLeft(w, Line<T>(u, v))) {
                             return false;
                         }
                     } else {
-                        if (pointOnLineLeft(w, Line(l.b, l.a))
-                            || pointOnLineLeft(w, Line(u, v))) {
+                        if (pointOnLineLeft(w, Line<T>(l.b, l.a))
+                            || pointOnLineLeft(w, Line<T>(u, v))) {
                             return false;
                         }
                     }
                 } else {
                     if (pointOnLineLeft(u, l)) {
-                        if (pointOnLineLeft(w, Line(l.b, l.a))
-                            || pointOnLineLeft(w, Line(u, v))) {
+                        if (pointOnLineLeft(w, Line<T>(l.b, l.a))
+                            || pointOnLineLeft(w, Line<T>(u, v))) {
                             return false;
                         }
                     } else {
                         if (pointOnLineLeft(w, l)
-                            || pointOnLineLeft(w, Line(u, v))) {
+                            || pointOnLineLeft(w, Line<T>(u, v))) {
                             return false;
                         }
                     }
@@ -340,4 +340,31 @@ constexpr bool segmentInPolygon(Line<T> l, std::vector<Point<T>> &p) {
         }
     }
     return true;
+}
+
+template<class T>
+std::vector<Point<T>> convexHull(std::vector<Point<T>> a) {
+    int n = a.size();
+    std::sort(a.begin(), a.end());
+    std::deque<Point<T>> q;
+
+    for (auto &x : a) {
+        while (q.size() > 1 && sgn(cross(q[q.size() - 1] - q[q.size() - 2], x - q[q.size() - 2])) <= 0) {
+            q.pop_back();
+        }
+        q.push_back(x);
+    }
+
+    int k = q.size();
+    for (int i = n - 1; i >= 0; i--) {
+        while (q.size() > k && sgn(cross(q[q.size() - 1] - q[q.size() - 2], a[i] - q[q.size() - 2])) <= 0) {
+            q.pop_back();
+        }
+        q.push_back(a[i]);
+    }
+
+    std::vector<Point<T>> ans(q.begin(), q.end());
+    ans.pop_back();
+
+    return ans;
 }
