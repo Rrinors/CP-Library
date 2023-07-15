@@ -1,12 +1,11 @@
-template<typename T>
+template<class T, auto f>
 struct RMQ {
     int n;
     std::vector<std::vector<T>> a;
-    const std::function<T(T, T)> f;
-    RMQ(const std::vector<T> &b, std::function<T(T, T)> f) : f(f) {
+    RMQ(const std::vector<T> &b) {
         init(b);
     }
-    RMQ(std::function<T(T, T)> f) : f(f) {}
+    RMQ() {}
 
     void init(const std::vector<T> &b) {
         n = b.size();
