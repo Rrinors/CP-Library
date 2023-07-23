@@ -1,4 +1,4 @@
-template<typename T, typename U>
+template<class T, class U>
 struct MCMF {
     const int n;
     struct Edge {

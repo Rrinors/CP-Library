@@ -100,11 +100,14 @@ struct MInt {
     friend constexpr bool operator!=(MInt lhs, MInt rhs) {
         return lhs.val() != rhs.val();
     }
+    friend constexpr bool operator<(MInt lhs, MInt rhs) {
+        return lhs.val() < rhs.val();
+    }
 };
  
 template<>
 int MInt<0>::Mod = 1;
- 
+
 template<int V, int P>
 constexpr MInt<P> CInv = MInt<P>(V).inv();
 
@@ -267,16 +270,16 @@ struct Poly {
         }
         return a;
     }
-    Poly &operator+=(Poly b) {
+    Poly &operator+=(Poly b) & {
         return (*this) = (*this) + b;
     }
-    Poly &operator-=(Poly b) {
+    Poly &operator-=(Poly b) & {
         return (*this) = (*this) - b;
     }
-    Poly &operator*=(Poly b) {
+    Poly &operator*=(Poly b) & {
         return (*this) = (*this) * b;
     }
-    Poly &operator*=(Z b) {
+    Poly &operator*=(Z b) & {
         return (*this) = (*this) * b;
     }
     Poly deriv() const {

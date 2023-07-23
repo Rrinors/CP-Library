@@ -1,10 +1,15 @@
 struct DSU {
-    int cnt;
     std::vector<int> f, siz;
-    DSU(int n) : cnt(n), f(n), siz(n, 1) {
+    DSU(int n) {
+        init(n);
+    }
+    DSU() {}
+    
+    void init(int n) {
+        siz.assign(n, 1);
+        f.resize(n);
         std::iota(f.begin(), f.end(), 0);
     }
-    
     int leader(int x) {
         while (x != f[x]) x = f[x] = f[f[x]];
         return x;
@@ -12,7 +17,6 @@ struct DSU {
     bool merge(int x, int y) {
         x = leader(x), y = leader(y);
         if (x == y) return false;
-        cnt--;
         siz[x] += siz[y];
         f[y] = x;
         return true;
@@ -22,8 +26,5 @@ struct DSU {
     }
     int size(int x) {
         return siz[leader(x)];
-    }
-    int comps() const {
-        return cnt;
     }
 };

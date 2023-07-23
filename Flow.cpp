@@ -1,6 +1,6 @@
-template<typename T>
+template<class T>
 struct Flow {
-    const int n;
+    int n;
     struct Edge {
         int to;
         T cap;
@@ -9,13 +9,21 @@ struct Flow {
     std::vector<Edge> e;
     std::vector<std::vector<int>> g;
     std::vector<int> cur, dep;
-    Flow(int n) : n(n), g(n) {}
+    Flow(int n) {
+        init(n);
+    }
+    Flow() {}
     
-    void addEdge(int u, int v, T c) {
+    void init(int n) {
+        this->n = n;
+        e.clear();
+        g.assign(n, {});
+    }
+    void addEdge(int u, int v, T c, T rc = 0) {
         g[u].push_back(e.size());
         e.emplace_back(v, c);
         g[v].push_back(e.size());
-        e.emplace_back(u, 0);
+        e.emplace_back(u, rc);
     }
     bool bfs(int s, int t) {
         dep.assign(n, -1);
@@ -47,7 +55,7 @@ struct Flow {
             const int j = g[u][i];
             auto [v, c] = e[j];
             if (c > 0 && dep[v] == dep[u] + 1) {
-                auto a = dfs(v, t, min(r, c));
+                auto a = dfs(v, t, std::min(r, c));
                 e[j].cap -= a;
                 e[j ^ 1].cap += a;
                 r -= a;
@@ -58,7 +66,7 @@ struct Flow {
         }
         return f - r;
     }
-    T maxFlow(int s, int t) {
+    T work(int s, int t) {
         T ans = 0;
         while (bfs(s, t)) {
             cur.assign(n, 0);
