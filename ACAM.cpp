@@ -1,10 +1,14 @@
-template<int ALPHABET = 26,
+template<int ALPHABET_SIZE = 26,
     char offset = 'a'>
 struct ACAM {
-    std::vector<std::array<int, ALPHABET>> t;
+    std::vector<std::array<int, ALPHABET_SIZE>> t;
     std::vector<int> f;
-    ACAM() : t(1), f(1) {}
+    ACAM() { init(); }
 
+    void init() {
+        t.assign(1, {});
+        f.assign(1, 0);
+    }
     int newNode() {
         t.emplace_back();
         f.emplace_back();
@@ -26,7 +30,7 @@ struct ACAM {
         while (!q.empty()) {
             int p = q.front();
             q.pop();
-            for (int i = 0; i < ALPHABET; i++) {
+            for (int i = 0; i < ALPHABET_SIZE; i++) {
                 if (t[p][i]) {
                     if (p) {
                         f[t[p][i]] = t[f[p]][i];
@@ -39,13 +43,13 @@ struct ACAM {
         }
     }
 
-    int next(int p, int i) const {
+    int next(int p, int i) {
         return t[p][i];
     }
-    int fail(int p) const {
+    int fail(int p) {
         return f[p];
     }
-    int size() const {
+    int size() {
         return t.size();
     }
 };
