@@ -108,8 +108,5 @@ struct MInt {
 template<>
 int MInt<0>::Mod = 1;
 
-template<int V, int P>
-constexpr MInt<P> CInv = MInt<P>(V).inv();
-
 constexpr int P = 998244353;
 using Z = MInt<P>;

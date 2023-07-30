@@ -108,9 +108,6 @@ struct MInt {
 template<>
 int MInt<0>::Mod = 1;
 
-template<int V, int P>
-constexpr MInt<P> CInv = MInt<P>(V).inv();
-
 template<int P1, int P2>
 struct MPair {
     MInt<P1> x;
