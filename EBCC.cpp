@@ -1,23 +1,14 @@
-std::pair<int, std::vector<int>> EBCC(auto &adj) {
+std::pair<int, std::vector<int>> EBCC(auto &adj, int m) {
     int n = adj.size();
     std::vector<int> dfn(n, -1), low(n), id(n), stk;
-    std::vector<bool> vis(1);
+    std::vector<bool> vis(m);
     int now = 0, cnt = 0;
-    
-    auto check = [&](int x) {
-        int sz = vis.size();
-        if (x >= sz) {
-            sz *= 2;
-            vis.resize(sz);
-        }
-        return vis[x];
-    };
 
     auto tarjan = [&](auto self, int x) -> void {
         dfn[x] = low[x] = now++;
         stk.push_back(x);
-        for (auto [y, i] : adj[x]) {
-            if (check(i)) {
+        for (auto [y, _, i] : adj[x]) {
+            if (vis[i]) {
                 continue;
             }
             vis[i] = true;
