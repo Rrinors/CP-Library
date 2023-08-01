@@ -52,4 +52,11 @@ struct ACAM {
     int size() {
         return t.size();
     }
+    std::vector<std::vector<int>> failTree() {
+        std::vector<std::vector<int>> adj(t.size());
+        for (int i = 1; i < t.size(); i++) {
+            adj[fail(i)].push_back(i);
+        }
+        return adj;
+    }
 };

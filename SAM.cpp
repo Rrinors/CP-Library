@@ -59,4 +59,11 @@ struct SAM {
     int size() {
         return t.size();
     }
+    std::vector<std::vector<int>> parentTree() {
+        std::vector<std::vector<int>> adj(t.size());
+        for (int i = 1; i < t.size(); i++) {
+            adj[link(i)].push_back(i);
+        }   
+        return adj;
+    }
 };
