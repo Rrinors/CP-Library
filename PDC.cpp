@@ -48,7 +48,7 @@
         }
     };
 
-    std::function<void(int)> pdc = [&](int x) {
+    std::function<void(int)> dc = [&](int x) {
         vis[x] = true;
         for (auto [y, w] : adj[x]) {
             if (!vis[y]) {
@@ -63,9 +63,9 @@
                 rt = -1;
                 get(y, x);
                 get(rt, -1);
-                pdc(rt);
+                dc(rt);
             }
         }
     };
 
-    pdc(rt);
+    dc(rt);
