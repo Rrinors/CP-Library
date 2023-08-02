@@ -27,7 +27,7 @@ struct SAM {
             p = t[p].link;
         }
         if (p == -1) {
-            t[p].link = 0;
+            t[cur].link = 0;
         } else {
             int q = t[p].next[c];
             if (t[p].len + 1 == t[q].len) {
@@ -59,8 +59,8 @@ struct SAM {
     int size() {
         return t.size();
     }
-    std::vector<std::vector<int>> parentTree() {
-        std::vector<std::vector<int>> adj(t.size());
+    std::vector<std::vector<int>> getTree() {
+        std::vector<std::vector<int>> adj(size());
         for (int i = 1; i < t.size(); i++) {
             adj[link(i)].push_back(i);
         }   
