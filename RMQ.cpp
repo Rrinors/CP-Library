@@ -1,6 +1,4 @@
-template<class T, auto f = [](T a, T b) {
-    return std::max(a, b);
-}>
+template<class T, auto f>
 struct RMQ {
     std::vector<std::vector<T>> a;
     RMQ(const std::vector<T> &b) {
