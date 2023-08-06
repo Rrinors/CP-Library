@@ -100,4 +100,4 @@ struct MLong {
 };
  
 template<>
-i64 MLong<0>::Mod = 1;
+i64 MLong<0>::Mod = i64(1E18) + 9;

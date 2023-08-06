@@ -169,6 +169,6 @@ struct MPair {
 
 constexpr int P1 = 1000000829;
 constexpr int P2 = 1000000579;
-using Hash = MPair<P1, P2>;
+using Z = MPair<P1, P2>;
 
 std::mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());

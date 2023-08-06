@@ -106,7 +106,7 @@ struct MInt {
 };
  
 template<>
-int MInt<0>::Mod = 1;
+int MInt<0>::Mod = 998244353;
 
 template<int V, int P>
 constexpr MInt<P> CInv = MInt<P>(V).inv();
