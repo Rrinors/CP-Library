@@ -50,7 +50,7 @@
 
     std::function<void(int)> dc = [&](int x) {
         vis[x] = true;
-        for (auto [y, w] : adj[x]) {
+        for (auto y : adj[x]) {
             if (!vis[y]) {
                 calc(y, x);
                 modify(y, x);
