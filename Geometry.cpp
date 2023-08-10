@@ -15,7 +15,7 @@ constexpr int sgn(T x) {
     if (x > eps<T>) {
         return 1;
     }
-    if (x < eps<T>) {
+    if (x < -eps<T>) {
         return -1;
     }
     return 0;
@@ -234,7 +234,6 @@ constexpr bool pointInPolygon(Point<T> a, std::vector<Point<T>> &p) {
     return t == 1;
 }
 
-// counter-clockwise order
 // 0 : out
 // 1 : on
 // 2 : in
@@ -346,25 +345,23 @@ template<class T>
 std::vector<Point<T>> convexHull(std::vector<Point<T>> a) {
     int n = a.size();
     std::sort(a.begin(), a.end());
-    std::deque<Point<T>> q;
 
-    for (auto &x : a) {
-        while (q.size() > 1 && sgn(cross(q[q.size() - 1] - q[q.size() - 2], x - q[q.size() - 2])) <= 0) {
-            q.pop_back();
+    std::vector<Point<T>> stk;
+    for (int i = 0; i < n; i++) {
+        while (stk.size() > 1 && sgn(cross(stk[stk.size() - 1] - stk[stk.size() - 2], a[i] - stk[stk.size() - 2])) <= 0) {
+            stk.pop_back();
         }
-        q.push_back(x);
+        stk.push_back(a[i]);
     }
 
-    int k = q.size();
-    for (int i = n - 1; i >= 0; i--) {
-        while (q.size() > k && sgn(cross(q[q.size() - 1] - q[q.size() - 2], a[i] - q[q.size() - 2])) <= 0) {
-            q.pop_back();
+    int sz = stk.size();
+    for (int i = n - 2; i >= 0; i--) {
+        while (stk.size() > sz && sgn(cross(stk[stk.size() - 1] - stk[stk.size() - 2], a[i] - stk[stk.size() - 2])) <= 0) {
+            stk.pop_back();
         }
-        q.push_back(a[i]);
+        stk.push_back(a[i]);
     }
 
-    std::vector<Point<T>> ans(q.begin(), q.end());
-    ans.pop_back();
-
-    return ans;
+    stk.pop_back();
+    return stk;
 }
