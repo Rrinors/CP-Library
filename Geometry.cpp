@@ -213,7 +213,7 @@ constexpr std::tuple<int, Point<T>, Point<T>> segmentIntersection(Line<T> l1, Li
 }
 
 template<class T>
-constexpr bool pointInPolygon(Point<T> a, std::vector<Point<T>> &p) {
+constexpr bool pointInPolygon(Point<T> a, std::vector<Point<T>> p) {
     int n = p.size();
     for (int i = 0; i < n; i++) {
         if (pointOnSegment(a, Line<T>(p[i], p[(i + 1) % n]))) {
@@ -265,7 +265,7 @@ constexpr int pointInConvex(Point<T> x, std::vector<Point<T>> &a) {
 }
 
 template<class T>
-constexpr bool segmentInPolygon(Line<T> l, std::vector<Point<T>> &p) {
+constexpr bool segmentInPolygon(Line<T> l, std::vector<Point<T>> p) {
     int n = p.size();
     if (!pointInPolygon(l.a, p)) {
         return false;
