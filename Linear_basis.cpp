@@ -1,19 +1,20 @@
-template<typename T, int N>
+template<class T, int N>
 struct LinearBasis {
     std::array<T, N> p;
     LinearBasis() : p{} {}
     
-    void insert(T x) {
+    bool add(T x) {
         for (int i = N - 1; i >= 0; i--) {
             if (!(x >> i)) {
                 continue;
             }
             if (!p[i]) {
                 p[i] = x;
-                break;
+                return true;
             }
             x ^= p[i];
         }
+        return false;
     }
     T max() {
         T res = 0;
@@ -22,10 +23,10 @@ struct LinearBasis {
         }
         return res;
     }
-    void merge(const LinearBasis &x) {
+    LinearBasis &operator+=(LinearBasis b) & {
         for (int i = N - 1; i >= 0; i--) {
-            if (x.p[i]) {
-                insert(x.p[i]);
+            if (b.p[i]) {
+                add(b.p[i]);
             }
         }
     }
