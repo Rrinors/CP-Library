@@ -34,7 +34,7 @@
 
     for (now = 0; now < n; now++) {
         build(g[now]);
-        dfs(dfs, 0, 0);
+        dfs(dfs, 0, -1);
         // calc ans
         for (auto x : g[now]) {
             T[x].clear();
