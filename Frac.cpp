@@ -1,55 +1,57 @@
-int sgn(const Frac &f) {
-    if (f.x == 0) {
-        return 0;
-    }
-    if ((f.x > 0) == (f.y > 0)) {
-        return 1;
-    }
-    return -1;
-}
 struct Frac {
-    i64 x, y;
-    Frac(i64 x = 0, i64 y = 1) {
+    i64 x;
+    i64 y;
+    Frac() : x{0}, y{1} {}
+    Frac(i64 x, i64 y = 1) {
         assert(y != 0);
+        if (y < 0) {
+            x = -x;
+            y = -y;
+        }
         i64 g = std::gcd(x, y);
-        this->x = x / g;
-        this->y = y / g;
+        x /= g;
+        y /= g;
+        this->x = x;
+        this->y = y;
     }
 
-    friend Frac operator+(const Frac &lhs, const Frac &rhs) {
-        return {lhs.x * rhs.y + lhs.y * rhs.x, lhs.y * rhs.y};
+    Frac operator-() const {
+        return {-x, -y};
     }
-    friend Frac operator-(const Frac &lhs, const Frac &rhs) {
-        return {lhs.x * rhs.y - lhs.y * rhs.x, lhs.y * rhs.y};
+    Frac &operator+=(Frac a) & {
+        return *this = {x * a.y + y * a.x, y * a.y};
     }
-    friend Frac operator*(const Frac &lhs, const Frac &rhs) {
-        return Frac(lhs.x * rhs.x, lhs.y * rhs.y);
+    Frac &operator-=(Frac a) & {
+        return *this = {x * a.y - y * a.x, y * a.y};
     }
-    friend Frac operator/(const Frac &lhs, const Frac &rhs) {
-        return Frac(lhs.x * rhs.y, lhs.y * rhs.x);
+    Frac &operator*=(Frac a) & {
+        return *this = {x * a.x, y * a.y};
     }
-    Frac &operator+=(const Frac &rhs) {
-        return *this = *this + rhs;
+    Frac &operator/=(Frac a) & {
+        return *this = {x * a.y, y * a.x};
     }
-    Frac &operator-=(const Frac &rhs) {
-        return *this = *this - rhs;
+    friend Frac operator+(Frac a, Frac b) {
+        return a += b;
     }
-    Frac &operator*=(const Frac &rhs) {
-        return *this = *this * rhs;
+    friend Frac operator-(Frac a, Frac b) {
+        return a -= b;
     }
-    Frac &operator/=(const Frac &rhs) {
-        return *this = *this / rhs;
+    friend Frac operator*(Frac a, Frac b) {
+        return a *= b;
     }
-    friend bool operator<(const Frac &lhs, const Frac &rhs) {
-        if (sgn(lhs) != sgn(rhs)) {
-            return sgn(lhs) < sgn(rhs);
+    friend Frac operator/(Frac a, Frac b) {
+        return a /= b;
+    }
+    friend bool operator==(Frac a, Frac b) {
+        return a.x == b.x && a.y == b.y;
+    }
+    friend bool operator<(Frac a, Frac b) {
+        if ((a.x > 0) ^ (b.x > 0)) {
+            return a.x < b.x;
         }
-        if (sgn(lhs) >= 0 && sgn(rhs) >= 0) {
-            return abs(lhs.x * rhs.y) < abs(lhs.y * rhs.x);
-        }
-        return abs(lhs.x * rhs.y) > abs(lhs.y * rhs.x);
+        return a.x * b.y < a.y * b.x;
     }
-    friend bool operator==(const Frac &lhs, const Frac &rhs) {
-        return sgn(lhs) == sgn(rhs) && abs(lhs.x) == abs(rhs.x) && abs(lhs.y) == abs(rhs.y);
+    friend std::ostream &operator<<(std::ostream &os, Frac a) {
+        return os << a.x << "/" << a.y;
     }
 };
