@@ -1,13 +1,11 @@
-using u64 = unsigned long long;
-
-struct Bitset {
+struct BitSet {
     int n;
-    std::vector<u64> a;
+    std::vector<unsigned long long> a;
 
-    Bitset(int n) {
+    BitSet(int n) {
         init(n);
     }
-    Bitset() {}
+    BitSet() {}
 
     void init(int n) {
         this->n = n;
@@ -37,7 +35,7 @@ struct Bitset {
         int shift = 63 - (n - 1) % 64;
         a.back() = a.back() << shift >> shift;
     }
-    Bitset &operator&=(Bitset rhs) & {
+    BitSet &operator&=(BitSet rhs) & {
         int m = std::min(a.size(), rhs.a.size());
         for (int i = 0; i < m; i++) {
             a[i] &= rhs.a[i];
@@ -45,7 +43,7 @@ struct Bitset {
         norm();
         return *this;
     }
-    Bitset &operator|=(Bitset rhs) & {
+    BitSet &operator|=(BitSet rhs) & {
         int m = std::min(a.size(), rhs.a.size());
         for (int i = 0; i < m; i++) {
             a[i] |= rhs.a[i];
@@ -53,7 +51,7 @@ struct Bitset {
         norm();
         return *this;
     }
-    Bitset &operator^=(Bitset rhs) & {
+    BitSet &operator^=(BitSet rhs) & {
         int m = std::min(a.size(), rhs.a.size());
         for (int i = 0; i < m; i++) {
             a[i] ^= rhs.a[i];
@@ -61,7 +59,7 @@ struct Bitset {
         norm();
         return *this;
     }
-    Bitset &operator<<=(int k) & {
+    BitSet &operator<<=(int k) & {
         int m = a.size();
         for (int i = m - 1; i >= 0; i--) {
             int l = i * 64 - k;
@@ -72,7 +70,7 @@ struct Bitset {
                 a[i] = a[l / 64];
             } else {
                 int shift = r % 64;
-                u64 v = 0;
+                unsigned long long v = 0;
                 if (l > 0) {
                     v += a[l / 64] >> (shift + 1);
                 }
@@ -83,7 +81,7 @@ struct Bitset {
         norm();
         return *this;
     }
-    Bitset &operator>>=(int k) & {
+    BitSet &operator>>=(int k) & {
         int m = a.size();
         for (int i = 0; i < m; i++) {
             int l = i * 64 + k;
@@ -94,7 +92,7 @@ struct Bitset {
                 a[i] = a[l / 64];
             } else {
                 int shift = r % 64;
-                u64 v = 0;
+                unsigned long long v = 0;
                 v += a[l / 64] >> (shift + 1);
                 if (r / 64 < m) {
                     v += a[r / 64] << (63 - shift);
@@ -105,19 +103,19 @@ struct Bitset {
         norm();
         return *this;
     }
-    friend Bitset operator&(Bitset lhs, Bitset rhs) {
+    friend BitSet operator&(BitSet lhs, BitSet rhs) {
         return lhs &= rhs;
     }
-    friend Bitset operator|(Bitset lhs, Bitset rhs) {
+    friend BitSet operator|(BitSet lhs, BitSet rhs) {
         return lhs |= rhs;
     }
-    friend Bitset operator^(Bitset lhs, Bitset rhs) {
+    friend BitSet operator^(BitSet lhs, BitSet rhs) {
         return lhs ^= rhs;
     }
-    friend Bitset operator<<(Bitset lhs, int k) {
+    friend BitSet operator<<(BitSet lhs, int k) {
         return lhs <<= k;
     }
-    friend Bitset operator>>(Bitset lhs, int k) {
+    friend BitSet operator>>(BitSet lhs, int k) {
         return lhs >>= k;
     }
     int findFirst() const {
@@ -153,11 +151,10 @@ struct Bitset {
         }
         return ans;
     }
-    friend std::ostream &operator<<(std::ostream &os, const Bitset &g) {
-        std::string s;
+    friend std::ostream &operator<<(std::ostream &os, const BitSet &g) {
         for (int i = g.n - 1; i >= 0; i--) {
-            s.push_back(g[i] + '0');
+            os << g[i];
         }
-        return os << s;
+        return os;
     }
 };
