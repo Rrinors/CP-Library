@@ -1,10 +1,10 @@
-template<typename T>
+template<class T>
 struct SegmentTree {
     const int n;
     std::vector<T> a;
 
     SegmentTree(int n) : n(n), a(4 * n) {}
-    template<typename F>
+    template<class F>
     SegmentTree(const std::vector<F> &b) : SegmentTree(b.size()) {
         std::function<void(int, int, int)> build = [&](int p, int l, int r) {
             if (l == r) {
