@@ -8,11 +8,14 @@ struct Frac {
             x = -x;
             y = -y;
         }
+        this->x = x;
+        this->y = y;
+    }
+
+    void norm() {
         i64 g = std::gcd(x, y);
         x /= g;
         y /= g;
-        this->x = x;
-        this->y = y;
     }
 
     Frac operator-() const {
@@ -52,6 +55,7 @@ struct Frac {
         return a.x * b.y < a.y * b.x;
     }
     friend std::ostream &operator<<(std::ostream &os, Frac a) {
+        a.norm();
         return os << a.x << "/" << a.y;
     }
 };
