@@ -14,7 +14,7 @@ struct ACAM {
         f.emplace_back();
         return t.size() - 1;
     }
-    int insert(const std::string &s) {
+    int add(std::string s) {
         int p = 0;
         for (auto c : s) {
             if (!t[p][c - offset]) {
