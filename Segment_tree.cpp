@@ -1,14 +1,27 @@
 template<class T>
 struct SegmentTree {
-    const int n;
+    int n;
     std::vector<T> a;
 
-    SegmentTree(int n) : n(n), a(4 * n) {}
+    SegmentTree() {}
+    SegmentTree(int n) {
+        init(n);
+    }
     template<class F>
-    SegmentTree(const std::vector<F> &b) : SegmentTree(b.size()) {
+    SegmentTree(std::vector<F> b) {
+        init(b);
+    }
+
+    void init(int n) {
+        this->n = n;
+        a.assign(4 * n, T());
+    }
+    template<class F>
+    void init(std::vector<F> b) {
+        init(b.size());
         std::function<void(int, int, int)> build = [&](int p, int l, int r) {
             if (l == r) {
-                a[p] = T(b[l]);
+                a[p] = T{b[l]};
                 return;
             }
             int m = (l + r) / 2;
@@ -35,7 +48,7 @@ struct SegmentTree {
     T rangeQuery(int x, int y) {
         return rangeQuery(1, 0, n - 1, x, y);
     }
-    void modify(int p, int l, int r, int x, const T &v) {
+    void modify(int p, int l, int r, int x, T v) {
         if (l == r) {
             a[p] = v;
             return;
@@ -48,7 +61,7 @@ struct SegmentTree {
         }
         pull(p);
     }
-    void modify(int x, const T &v) {
+    void modify(int x, T v) {
         modify(1, 0, n - 1, x, v);
     }
 };

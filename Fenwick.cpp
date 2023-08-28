@@ -1,12 +1,26 @@
-template<typename T>
+template<class T>
 struct Fenwick {
-    const int n;
+    int n;
     std::vector<T> a;
-    Fenwick(int n) : n(n), a(n) {}
-    template<typename F>
-    Fenwick(const std::vector<F> &b) : Fenwick(b.size()) {
+
+    Fenwick() {}
+    Fenwick(int n) {
+        init(n);
+    }
+    template<class F>
+    Fenwick(std::vector<F> b) {
+        init(b);
+    }
+
+    void init(int n) {
+        this->n = n;
+        a.assign(n, T());
+    }
+    template<class F>
+    void init(std::vector<F> b) {
+        init(b.size());
         for (int i = 1; i <= n; i++) {
-            a[i - 1] += b[i - 1];
+            a[i - 1] += T{b[i - 1]};
             int j = i + (i & -i);
             if (j <= n) {
                 a[j - 1] += a[i - 1];
