@@ -91,7 +91,7 @@ struct MInt {
         a = MInt(v);
         return is;
     }
-    friend constexpr std::ostream &operator<<(std::ostream &os, const MInt &a) {
+    friend constexpr std::ostream &operator<<(std::ostream &os, MInt a) {
         return os << a.val();
     }
     friend constexpr bool operator==(MInt lhs, MInt rhs) {

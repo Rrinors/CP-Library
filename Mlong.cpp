@@ -88,7 +88,7 @@ struct MLong {
         a = MLong(v);
         return is;
     }
-    friend constexpr std::ostream &operator<<(std::ostream &os, const MLong &a) {
+    friend constexpr std::ostream &operator<<(std::ostream &os, MLong a) {
         return os << a.val();
     }
     friend constexpr bool operator==(MLong lhs, MLong rhs) {
