@@ -1,15 +1,32 @@
 struct BitSet {
+    using u64 = unsigned long long;
     int n;
-    std::vector<unsigned long long> a;
+    std::vector<u64> a;
 
+    BitSet() {}
     BitSet(int n) {
         init(n);
     }
-    BitSet() {}
+    BitSet(std::string s) {
+        init(s);
+    }
 
     void init(int n) {
         this->n = n;
         a.assign((n + 63) / 64, 0);
+    }
+    void init(std::string s) {
+        init(s.length());
+        for (int i = 0; i < n; i++) {
+            set(n - i - 1, s[i] - '0');
+        }
+    }
+    void norm() {
+        if (n == 0) {
+            return;
+        }
+        int shift = 63 - (n - 1) % 64;
+        a.back() = a.back() << shift >> shift;
     }
 
     int operator[](int x) const {
@@ -27,13 +44,6 @@ struct BitSet {
         if ((a[id] >> (x - id * 64) & 1) != v) {
             a[id] ^= 1ULL << (x - id * 64);
         }
-    }
-    void norm() {
-        if (n == 0) {
-            return;
-        }
-        int shift = 63 - (n - 1) % 64;
-        a.back() = a.back() << shift >> shift;
     }
     BitSet &operator&=(BitSet rhs) & {
         int m = std::min(a.size(), rhs.a.size());
@@ -70,7 +80,7 @@ struct BitSet {
                 a[i] = a[l / 64];
             } else {
                 int shift = r % 64;
-                unsigned long long v = 0;
+                u64 v = 0;
                 if (l > 0) {
                     v += a[l / 64] >> (shift + 1);
                 }
@@ -92,7 +102,7 @@ struct BitSet {
                 a[i] = a[l / 64];
             } else {
                 int shift = r % 64;
-                unsigned long long v = 0;
+                u64 v = 0;
                 v += a[l / 64] >> (shift + 1);
                 if (r / 64 < m) {
                     v += a[r / 64] << (63 - shift);
@@ -117,6 +127,31 @@ struct BitSet {
     }
     friend BitSet operator>>(BitSet lhs, int k) {
         return lhs >>= k;
+    }
+    friend bool operator==(BitSet lhs, BitSet rhs) {
+        if (lhs.n != rhs.n) {
+            return false;
+        }
+        int m = lhs.a.size();
+        for (int i = 0; i < m; i++) {
+            if (lhs.a[i] != rhs.a[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+    friend bool operator<(BitSet lhs, BitSet rhs) {
+        assert(lhs.a.size() == rhs.a.size());
+        int m = lhs.a.size();
+        for (int i = 0; i < m; i++) {
+            if (lhs.a[i] < rhs.a[i]) {
+                return true;
+            }
+            if (lhs.a[i] > rhs.a[i]) {
+                return false;
+            }
+        }
+        return false;
     }
     int findFirst() const {
         int m = a.size();
@@ -151,9 +186,9 @@ struct BitSet {
         }
         return ans;
     }
-    friend std::ostream &operator<<(std::ostream &os, const BitSet &g) {
-        for (int i = g.n - 1; i >= 0; i--) {
-            os << g[i];
+    friend std::ostream &operator<<(std::ostream &os, BitSet b) {
+        for (int i = b.n - 1; i >= 0; i--) {
+            os << b[i];
         }
         return os;
     }
