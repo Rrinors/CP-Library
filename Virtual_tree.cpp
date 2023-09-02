@@ -1,4 +1,3 @@
-
     std::vector<std::vector<int>> T(n);
     auto build = [&](std::vector<int> &v) {
         v.push_back(0);
