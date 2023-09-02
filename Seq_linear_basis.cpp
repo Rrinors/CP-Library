@@ -2,24 +2,27 @@ template<class T, int N>
 struct SeqLinearBasis {
     std::array<T, N> p;
     std::array<int, N> t;
-    SeqLinearBasis() : p{} { std::fill(t.begin(), t.end(), -1); }
+    SeqLinearBasis() : p{} {
+        t.fill(-1);
+    }
 
-    void insert(T x, int now) {
+    bool add(T x, int cur) {
         for (int i = N - 1; i >= 0; i--) {
             if (!(x >> i)) {
                 continue;
             }
             if (!p[i]) {
                 p[i] = x;
-                t[i] = now;
-                break;
+                t[i] = cur;
+                return true;
             }
-            if (now > t[i]) {
+            if (cur > t[i]) {
                 std::swap(x, p[i]);
-                std::swap(now, t[i]);
+                std::swap(cur, t[i]);
             }
             x ^= p[i];
         }
+        return false;
     }
     T max(int l) {
         T res = 0;
@@ -46,7 +49,7 @@ void solve() {
         if (i) {
             h[i] = h[i - 1];
         }
-        h[i].insert(c[i], i);
+        h[i].add(c[i], i);
     }
 
     int q;
