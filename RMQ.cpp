@@ -1,17 +1,16 @@
-template<class T>
+template<class T, class F>
 struct RMQ {
     std::vector<std::vector<T>> a;
-    std::function<T(T, T)> f;
+    F f;
 
-    RMQ(std::vector<T> a_, std::function<T(T, T)> f_) {
-        init(a_, f_);
-    }
     RMQ() {}
+    RMQ(std::vector<T> a_, F f_) : f(f_) {
+        init(a_);
+    }
 
-    void init(std::vector<T> a_,  std::function<T(T, T)> f_) {
-        f = f_;
+    void init(std::vector<T> a_) {
         int n = a_.size();
-        int s = 31 - __builtin_clz(n);
+        int s = std::__lg(n);
         a.assign(s + 1, std::vector<T>(n));
         a[0] = a_;
         for (int i = 1; i <= s; i++){
@@ -20,8 +19,9 @@ struct RMQ {
             }
         }
     }
+
     T query(int l, int r) {
-        int s = 31 - __builtin_clz(r - l + 1);
+        int s = std::__lg(r - l + 1);
         return f(a[s][l], a[s][r - (1 << s) + 1]);
     }
 };
