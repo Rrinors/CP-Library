@@ -8,8 +8,8 @@ struct Fenwick {
         init(n);
     }
     template<class F>
-    Fenwick(std::vector<F> b) {
-        init(b);
+    Fenwick(std::vector<F> a_) {
+        init(a_);
     }
 
     void init(int n) {
@@ -17,10 +17,10 @@ struct Fenwick {
         a.assign(n, T());
     }
     template<class F>
-    void init(std::vector<F> b) {
-        init(b.size());
+    void init(std::vector<F> a_) {
+        init(a_.size());
         for (int i = 1; i <= n; i++) {
-            a[i - 1] += T{b[i - 1]};
+            a[i - 1] += T{a_[i - 1]};
             int j = i + (i & -i);
             if (j <= n) {
                 a[j - 1] += a[i - 1];
@@ -45,5 +45,15 @@ struct Fenwick {
             return T();
         }
         return sum(r) - sum(l - 1); 
+    }
+    int kth(T k) {
+        int x = 0;
+        for (int i = 1 << std::__lg(n); i; i /= 2) {
+            if (x + i <= n && k >= a[x + i - 1]) {
+                x += i;
+                k -= a[x - 1];
+            }
+        }
+        return x;
     }
 };

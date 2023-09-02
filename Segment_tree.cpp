@@ -8,8 +8,8 @@ struct SegmentTree {
         init(n);
     }
     template<class F>
-    SegmentTree(std::vector<F> b) {
-        init(b);
+    SegmentTree(std::vector<F> a_) {
+        init(a_);
     }
 
     void init(int n) {
@@ -17,11 +17,11 @@ struct SegmentTree {
         a.assign(4 * n, T());
     }
     template<class F>
-    void init(std::vector<F> b) {
-        init(b.size());
+    void init(std::vector<F> a_) {
+        init(a_.size());
         std::function<void(int, int, int)> build = [&](int p, int l, int r) {
             if (l == r) {
-                a[p] = T{b[l]};
+                a[p] = T{a_[l]};
                 return;
             }
             int m = (l + r) / 2;
@@ -63,5 +63,43 @@ struct SegmentTree {
     }
     void modify(int x, T v) {
         modify(1, 0, n - 1, x, v);
+    }
+    template<class F>
+    int findFirst(int p, int l, int r, int x, int y, F pred) {
+        if (l > y || r < x || !pred(a[p])) {
+            return -1;
+        }
+        if (l == r) {
+            return l;
+        }
+        int m = (l + r) / 2;
+        int res = findFirst(2 * p, l, m, x, y, pred);
+        if (res == -1) {
+            res = findFirst(2 * p + 1, m + 1, r, x, y, pred);
+        }
+        return res;
+    }
+    template<class F>
+    int findFirst(int l, int r, F pred) {
+        return findFirst(1, 0, n, l, r, pred);
+    }
+    template<class F>
+    int findLast(int p, int l, int r, int x, int y, F pred) {
+        if (l > y || r < x || !pred(a[p])) {
+            return -1;
+        }
+        if (l == r) {
+            return l;
+        }
+        int m = (l + r) / 2;
+        int res = findLast(2 * p + 1, m + 1, r, x, y, pred);
+        if (res == -1) {
+            res = findLast(2 * p, l, m, x, y, pred);
+        }
+        return res;
+    }
+    template<class F>
+    int findLast(int l, int r, F pred) {
+        return findLast(1, 0, n, l, r, pred);
     }
 };
