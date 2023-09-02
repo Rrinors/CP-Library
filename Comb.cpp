@@ -1,4 +1,3 @@
-
 struct Comb {
     int n;
     std::vector<Z> _fac;
