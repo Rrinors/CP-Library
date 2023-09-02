@@ -1,10 +1,10 @@
-struct SuffixArray {
+struct SA {
     int n;
     std::vector<int> sa, rk, height;
-    SuffixArray(auto &s, int m = 128) {
+    SA(auto &s, int m = 128) {
         init(s, m);
     }
-    SuffixArray() {}
+    SA() {}
 
     void init(auto &s, int m = 128) {
         n = s.size();
