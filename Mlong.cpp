@@ -1,11 +1,7 @@
-constexpr i64 mul(i64 a, i64 b, i64 p) {
-    i64 res = a * b - i64(1.L * a * b / p) * p;
-    res %= p;
-    if (res < 0) {
-        res += p;
-    }
-    return res;
+constexpr i64 mul(i64 a, i64 b, i64 m) {
+    return static_cast<__int128>(a) * b % m;
 }
+
 template<i64 P>
 struct MLong {
     i64 x;
