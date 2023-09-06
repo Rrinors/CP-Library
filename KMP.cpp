@@ -1,4 +1,4 @@
-std::vector<int> kmp(const std::string &s) {
+std::vector<int> kmp(std::string s) {
     int n = s.length();
     std::vector<int> next(n + 1);
     for (int i = 1, j = 0; i < n; i++) {
@@ -11,7 +11,7 @@ std::vector<int> kmp(const std::string &s) {
     return next;
 }
 
-std::vector<int> exkmp(const std::string &s) {
+std::vector<int> exkmp(std::string s) {
     int n = s.length();
     std::vector<int> z(n);
     for (int i = 1, l = 0, r = 0; i < n; i++) {
