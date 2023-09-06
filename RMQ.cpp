@@ -1,14 +1,15 @@
-template<class T, class F>
+template<class T>
 struct RMQ {
     std::vector<std::vector<T>> a;
-    F f;
+    std::function<T(T, T)> f;
 
     RMQ() {}
-    RMQ(std::vector<T> a_, F f_) : f(f_) {
-        init(a_);
+    RMQ(std::vector<T> a_, auto f_) {
+        init(a_, f_);
     }
 
-    void init(std::vector<T> a_) {
+    void init(std::vector<T> a_, auto f_) {
+        f = f_;
         int n = a_.size();
         int s = std::__lg(n);
         a.assign(s + 1, std::vector<T>(n));
