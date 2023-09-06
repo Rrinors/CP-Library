@@ -78,6 +78,7 @@ struct Poly : public std::vector<MInt<P>> {
     using Value = MInt<P>;
 
     Poly() : std::vector<Value>() {}
+
     explicit constexpr Poly(int n) : std::vector<Value>(n) {}
 
     explicit constexpr Poly(const std::vector<Value> &a) : std::vector<Value>(a) {}
