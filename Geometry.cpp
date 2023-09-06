@@ -10,6 +10,9 @@ constexpr i64 eps<i64> = 0;
 template<>
 constexpr double eps<double> = 1E-6;
 
+template<>
+constexpr long double eps<long double> = 1E-8;
+
 template<class T>
 constexpr int sgn(T x) {
     if (x > eps<T>) {
@@ -25,12 +28,12 @@ template<class T>
 struct Point {
     T x;
     T y;
-    constexpr Point() : x{}, y{} {}
-    template<class U>
-    constexpr Point(U x_ = 0, U y_ = 0) : x{T(x_)}, y{T(y_)} {}
-    template<class U>
-    explicit constexpr Point(Point<U> p_) : Point(p_.x, p_.y) {}
+    Point(T x_ = 0, T y_ = 0) : x(x_), y(y_) {}
 
+    template<class U>
+    operator Point<U>() {
+        return Point<U>(U(x), U(y));
+    }
     constexpr Point &operator+=(Point p) & {
         x += p.x;
         y += p.y;
@@ -53,7 +56,7 @@ struct Point {
         return *this;
     }
     constexpr Point operator-() const {
-        return {-x, -y};
+        return Point(-x, -y);
     }
     friend constexpr Point operator+(Point a, Point b) {
         return a += b;
@@ -64,11 +67,11 @@ struct Point {
     friend constexpr Point operator*(Point a, T b) {
         return a *= b;
     }
-    friend constexpr Point operator*(T a, Point b) {
-        return b *= a;
-    }
     friend constexpr Point operator/(Point a, T b) {
         return a /= b;
+    }
+    friend constexpr Point operator*(T a, Point b) {
+        return b *= a;
     }
     friend constexpr bool operator==(Point a, Point b) {
         return sgn(a.x - b.x) == 0 && sgn(a.y - b.y) == 0;
@@ -106,27 +109,19 @@ constexpr double length(Point<T> p) {
 
 template<class T>
 constexpr Point<T> vertical(Point<T> p) {
-    return {-p.y, p.x};
+    return Point(-p.y, p.x);
 }
 
 template<class T>
 constexpr Point<double> rotate(Point<T> p, double t) {
-    return {p.x * std::cos(t) - p.y * std::sin(t), p.x * std::sin(t) + p.y * std::cos(t)};
+    return Point(p.x * std::cos(t) - p.y * std::sin(t), p.x * std::sin(t) + p.y * std::cos(t));
 }
 
 template<class T>
 struct Line {
     Point<T> a;
     Point<T> b;
-    constexpr Line() : a{}, b{} {}
-    template<class U>
-    constexpr Line(Point<U> a_, Point<U> b_) : a{Point<T>(a_)}, b{Point<T>(b_)} {}
-    template<class U>
-    explicit constexpr Line(Line<U> l_) : Line(l_.a, l_.b) {}
-
-    friend constexpr std::ostream &operator<<(std::ostream &os, Line l) {
-        return os << l.a << " -- " << l.b;
-    }
+    Line(Point<T> a_ = Point<T>(), Point<T> b_ = Point<T>()) : a(a_), b(b_) {}
 };
 
 template<class T>
@@ -146,7 +141,7 @@ constexpr Point<T> lineIntersection(Line<T> l1, Line<T> l2) {
 }
 
 template<class T>
-constexpr T pointLineDistance(Point<T> p, Line<T> l){
+constexpr double pointLineDistance(Point<T> p, Line<T> l){
     if (l.a == l.b) {
         return length(p - l.a);
     }
@@ -216,21 +211,23 @@ template<class T>
 constexpr bool pointInPolygon(Point<T> a, std::vector<Point<T>> p) {
     int n = p.size();
     for (int i = 0; i < n; i++) {
-        if (pointOnSegment(a, Line<T>(p[i], p[(i + 1) % n]))) {
+        if (pointOnSegment(a, Line(p[i], p[(i + 1) % n]))) {
             return true;
         }
     }
+
     int t = 0;
     for (int i = 0; i < n; i++) {
         auto u = p[i];
         auto v = p[(i + 1) % n];
-        if (u.x < a.x && v.x >= a.x && pointOnLineLeft(a, Line<T>(v, u))) {
+        if (u.x < a.x && v.x >= a.x && pointOnLineLeft(a, Line(v, u))) {
             t ^= 1;
         }
-        if (u.x >= a.x && v.x < a.x && pointOnLineLeft(a, Line<T>(u, v))) {
+        if (u.x >= a.x && v.x < a.x && pointOnLineLeft(a, Line(u, v))) {
             t ^= 1;
         }
     }
+
     return t == 1;
 }
 
@@ -238,117 +235,45 @@ constexpr bool pointInPolygon(Point<T> a, std::vector<Point<T>> p) {
 // 1 : on
 // 2 : in
 template<class T>
-constexpr int pointInConvex(Point<T> x, std::vector<Point<T>> &a) {
+constexpr int pointInConvex(Point<T> p, const std::vector<Point<T>> &a) {
     int n = a.size();
-    if (sgn(cross(a[1] - a[0], x - a[0])) < 0 || sgn(cross(a[n - 1] - a[0], x - a[0])) > 0) {
+    if (sgn(cross(a[1] - a[0], p - a[0])) < 0 || sgn(cross(a[n - 1] - a[0], p - a[0])) > 0) {
         return 0;
     }
+
     int lo = 1, hi = n - 1;
     while (lo < hi) {
         int m = (lo + hi) / 2;
-        if (sgn(cross(a[m + 1] - a[0], x - a[0])) >= 0) {
+        if (sgn(cross(a[m + 1] - a[0], p - a[0])) >= 0) {
             lo = m + 1;
         } else {
             hi = m;
         }
     }
+
     if (lo == n - 1) {
-        return sgn(dot(x - a[0], x - a[lo])) <= 0;
+        return sgn(dot(p - a[0], p - a[lo])) <= 0;
     }
-    if (sgn(cross(a[lo + 1] - a[lo], x - a[lo])) == 0 || lo == 1 && pointOnSegment(x, {a[0], a[lo]})) {
+
+    if (sgn(cross(a[lo + 1] - a[lo], p - a[lo])) == 0 || lo == 1 && pointOnSegment(p, {a[0], a[lo]})) {
         return 1;
     }
-    if (sgn(cross(a[lo + 1] - a[lo], x - a[lo])) > 0) {
+
+    if (sgn(cross(a[lo + 1] - a[lo], p - a[lo])) > 0) {
         return 2;
     }
+
     return 0;
 }
 
 template<class T>
-constexpr bool segmentInPolygon(Line<T> l, std::vector<Point<T>> p) {
-    int n = p.size();
-    if (!pointInPolygon(l.a, p)) {
-        return false;
-    }
-    if (!pointInPolygon(l.b, p)) {
-        return false;
-    }
-    for (int i = 0; i < n; i++) {
-        auto u = p[i];
-        auto v = p[(i + 1) % n];
-        auto w = p[(i + 2) % n];
-        auto [t, p1, p2] = segmentIntersection(l, Line<T>(u, v));
-        
-        if (t == 1) {
-            return false;
-        }
-        if (t == 0) {
-            continue;
-        }
-        if (t == 2) {
-            if (pointOnSegment(v, l) && v != l.a && v != l.b) {
-                if (cross(v - u, w - v) > 0) {
-                    return false;
-                }
-            }
-        } else {
-            if (p1 != u && p1 != v) {
-                if (pointOnLineLeft(l.a, Line<T>(v, u))
-                    || pointOnLineLeft(l.b, Line<T>(v, u))) {
-                    return false;
-                }
-            } else if (p1 == v) {
-                if (l.a == v) {
-                    if (pointOnLineLeft(u, l)) {
-                        if (pointOnLineLeft(w, l)
-                            && pointOnLineLeft(w, Line<T>(u, v))) {
-                            return false;
-                        }
-                    } else {
-                        if (pointOnLineLeft(w, l)
-                            || pointOnLineLeft(w, Line<T>(u, v))) {
-                            return false;
-                        }
-                    }
-                } else if (l.b == v) {
-                    if (pointOnLineLeft(u, Line<T>(l.b, l.a))) {
-                        if (pointOnLineLeft(w, Line<T>(l.b, l.a))
-                            && pointOnLineLeft(w, Line<T>(u, v))) {
-                            return false;
-                        }
-                    } else {
-                        if (pointOnLineLeft(w, Line<T>(l.b, l.a))
-                            || pointOnLineLeft(w, Line<T>(u, v))) {
-                            return false;
-                        }
-                    }
-                } else {
-                    if (pointOnLineLeft(u, l)) {
-                        if (pointOnLineLeft(w, Line<T>(l.b, l.a))
-                            || pointOnLineLeft(w, Line<T>(u, v))) {
-                            return false;
-                        }
-                    } else {
-                        if (pointOnLineLeft(w, l)
-                            || pointOnLineLeft(w, Line<T>(u, v))) {
-                            return false;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return true;
-}
-
-template<class T>
-std::vector<Point<T>> convexHull(std::vector<Point<T>> a) {
+constexpr std::vector<Point<T>> convexHull(std::vector<Point<T>> a) {
     int n = a.size();
     std::sort(a.begin(), a.end());
 
     std::vector<Point<T>> stk;
     for (int i = 0; i < n; i++) {
-        while (stk.size() > 1 && sgn(cross(stk[stk.size() - 1] - stk[stk.size() - 2], a[i] - stk[stk.size() - 2])) <= 0) {
+        while (stk.size() > 1 && sgn(cross(stk.rbegin()[0] - stk.rbegin()[1], a[i] - stk.rbegin()[0])) <= 0) {
             stk.pop_back();
         }
         stk.push_back(a[i]);
@@ -356,7 +281,7 @@ std::vector<Point<T>> convexHull(std::vector<Point<T>> a) {
 
     int sz = stk.size();
     for (int i = n - 2; i >= 0; i--) {
-        while (stk.size() > sz && sgn(cross(stk[stk.size() - 1] - stk[stk.size() - 2], a[i] - stk[stk.size() - 2])) <= 0) {
+        while (stk.size() > sz && sgn(cross(stk.rbegin()[0] - stk.rbegin()[1], a[i] - stk.rbegin()[0])) <= 0) {
             stk.pop_back();
         }
         stk.push_back(a[i]);
