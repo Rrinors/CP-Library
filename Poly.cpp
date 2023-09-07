@@ -1,30 +1,8 @@
 std::vector<int> rev;
-template<int P>
-std::vector<MInt<P>> roots{0, 1};
+std::vector<Z> roots{0, 1};
 
-template<int P>
-constexpr MInt<P> findPrimitiveRoot() {
-    MInt<P> i = 2;
-    int k = __builtin_ctz(P - 1);
-    while (true) {
-        if (power(i, (P - 1) / 2) != 1) {
-            break;
-        }
-        i += 1;
-    }
-    return power(i, (P - 1) >> k);
-}
-
-template<int P>
-constexpr MInt<P> primitiveRoot = findPrimitiveRoot<P>();
-
-template<>
-constexpr MInt<998244353> primitiveRoot<998244353> {31};
-
-template<int P>
-constexpr void dft(std::vector<MInt<P>> &a) {
+void dft(std::vector<Z> &a) {
     int n = a.size();
-
     if (int(rev.size()) != n) {
         int k = __builtin_ctz(n) - 1;
         rev.resize(n);
@@ -32,20 +10,19 @@ constexpr void dft(std::vector<MInt<P>> &a) {
             rev[i] = rev[i >> 1] >> 1 | (i & 1) << k;
         }
     }
-
     for (int i = 0; i < n; i++) {
         if (rev[i] < i) {
             std::swap(a[i], a[rev[i]]);
         }
     }
-    if (roots<P>.size() < n) {
-        int k = __builtin_ctz(roots<P>.size());
-        roots<P>.resize(n);
+    if (int(roots.size()) < n) {
+        int k = __builtin_ctz(roots.size());
+        roots.resize(n);
         while ((1 << k) < n) {
-            auto e = power(primitiveRoot<P>, 1 << (__builtin_ctz(P - 1) - k - 1));
+            Z e = power(Z(3), (P - 1) >> (k + 1));
             for (int i = 1 << (k - 1); i < (1 << k); i++) {
-                roots<P>[2 * i] = roots<P>[i];
-                roots<P>[2 * i + 1] = roots<P>[i] * e;
+                roots[2 * i] = roots[i];
+                roots[2 * i + 1] = roots[i] * e;
             }
             k++;
         }
@@ -53,8 +30,8 @@ constexpr void dft(std::vector<MInt<P>> &a) {
     for (int k = 1; k < n; k *= 2) {
         for (int i = 0; i < n; i += 2 * k) {
             for (int j = 0; j < k; j++) {
-                MInt<P> u = a[i + j];
-                MInt<P> v = a[i + j + k] * roots<P>[k + j];
+                Z u = a[i + j];
+                Z v = a[i + j + k] * roots[k + j];
                 a[i + j] = u + v;
                 a[i + j + k] = u - v;
             }
@@ -62,39 +39,37 @@ constexpr void dft(std::vector<MInt<P>> &a) {
     }
 }
 
-template<int P>
-constexpr void idft(std::vector<MInt<P>> &a) {
+void idft(std::vector<Z> &a) {
     int n = a.size();
     std::reverse(a.begin() + 1, a.end());
     dft(a);
-    MInt<P> inv = (1 - P) / n;
+    Z inv = (1 - P) / n;
     for (int i = 0; i < n; i++) {
         a[i] *= inv;
     }
 }
 
-template<int P = 998244353>
-struct Poly : public std::vector<MInt<P>> {
-    using Value = MInt<P>;
+struct Poly : public std::vector<Z> {
+    std::vector<Z> a;
 
-    Poly() : std::vector<Value>() {}
+    Poly() : std::vector<Z>() {}
 
-    explicit constexpr Poly(int n) : std::vector<Value>(n) {}
+    explicit Poly(int n) : std::vector<Z>(n) {}
 
-    explicit constexpr Poly(const std::vector<Value> &a) : std::vector<Value>(a) {}
-    constexpr Poly(const std::initializer_list<Value> &a) : std::vector<Value>(a) {}
+    explicit Poly(const std::vector<Z> &a) : std::vector<Z>(a) {}
+    Poly(const std::initializer_list<Z> &a) : std::vector<Z>(a) {}
 
     template<class InputIt, class = std::_RequireInputIter<InputIt>>
-    explicit constexpr Poly(InputIt first, InputIt last) : std::vector<Value>(first, last) {}
+    explicit Poly(InputIt first, InputIt last) : std::vector<Z>(first, last) {}
 
     template<class F>
-    explicit constexpr Poly(int n, F f) : std::vector<Value>(n) {
+    explicit Poly(int n, F f) : std::vector<Z>(n) {
         for (int i = 0; i < n; i++) {
             (*this)[i] = f(i);
         }
     }
 
-    constexpr Poly shift(int k) const {
+    Poly shift(int k) const {
         if (k >= 0) {
             auto b = *this;
             b.insert(b.begin(), k, 0);
@@ -105,12 +80,12 @@ struct Poly : public std::vector<MInt<P>> {
             return Poly(this->begin() + (-k), this->end());
         }
     }
-    constexpr Poly trunc(int k) const {
+    Poly trunc(int k) const {
         Poly f = *this;
         f.resize(k);
         return f;
     }
-    constexpr friend Poly operator+(const Poly &a, const Poly &b) {
+    friend Poly operator+(const Poly &a, const Poly &b) {
         Poly res(std::max(a.size(), b.size()));
         for (int i = 0; i < a.size(); i++) {
             res[i] += a[i];
@@ -120,7 +95,7 @@ struct Poly : public std::vector<MInt<P>> {
         }
         return res;
     }
-    constexpr friend Poly operator-(const Poly &a, const Poly &b) {
+    friend Poly operator-(const Poly &a, const Poly &b) {
         Poly res(std::max(a.size(), b.size()));
         for (int i = 0; i < a.size(); i++) {
             res[i] += a[i];
@@ -130,14 +105,14 @@ struct Poly : public std::vector<MInt<P>> {
         }
         return res;
     }
-    constexpr friend Poly operator-(const Poly &a) {
-        std::vector<Value> res(a.size());
+    friend Poly operator-(const Poly &a) {
+        std::vector<Z> res(a.size());
         for (int i = 0; i < int(res.size()); i++) {
             res[i] = -a[i];
         }
         return Poly(res);
     }
-    constexpr friend Poly operator*(Poly a, Poly b) {
+    friend Poly operator*(Poly a, Poly b) {
         if (a.size() == 0 || b.size() == 0) {
             return Poly();
         }
@@ -168,40 +143,40 @@ struct Poly : public std::vector<MInt<P>> {
         a.resize(tot);
         return a;
     }
-    constexpr friend Poly operator*(Value a, Poly b) {
+    friend Poly operator*(Z a, Poly b) {
         for (int i = 0; i < int(b.size()); i++) {
             b[i] *= a;
         }
         return b;
     }
-    constexpr friend Poly operator*(Poly a, Value b) {
+    friend Poly operator*(Poly a, Z b) {
         for (int i = 0; i < int(a.size()); i++) {
             a[i] *= b;
         }
         return a;
     }
-    constexpr friend Poly operator/(Poly a, Value b) {
+    friend Poly operator/(Poly a, Z b) {
         for (int i = 0; i < int(a.size()); i++) {
             a[i] /= b;
         }
         return a;
     }
-    constexpr Poly &operator+=(Poly b) {
+    Poly &operator+=(Poly b) {
         return (*this) = (*this) + b;
     }
-    constexpr Poly &operator-=(Poly b) {
+    Poly &operator-=(Poly b) {
         return (*this) = (*this) - b;
     }
-    constexpr Poly &operator*=(Poly b) {
+    Poly &operator*=(Poly b) {
         return (*this) = (*this) * b;
     }
-    constexpr Poly &operator*=(Value b) {
+    Poly &operator*=(Z b) {
         return (*this) = (*this) * b;
     }
-    constexpr Poly &operator/=(Value b) {
+    Poly &operator/=(Z b) {
         return (*this) = (*this) / b;
     }
-    constexpr Poly deriv() const {
+    Poly deriv() const {
         if (this->empty()) {
             return Poly();
         }
@@ -211,14 +186,14 @@ struct Poly : public std::vector<MInt<P>> {
         }
         return res;
     }
-    constexpr Poly integr() const {
+    Poly integr() const {
         Poly res(this->size() + 1);
         for (int i = 0; i < this->size(); ++i) {
             res[i + 1] = (*this)[i] / (i + 1);
         }
         return res;
     }
-    constexpr Poly inv(int m) const {
+    Poly inv(int m) const {
         Poly x{(*this)[0].inv()};
         int k = 1;
         while (k < m) {
@@ -227,10 +202,10 @@ struct Poly : public std::vector<MInt<P>> {
         }
         return x.trunc(m);
     }
-    constexpr Poly log(int m) const {
+    Poly log(int m) const {
         return (deriv() * inv(m)).integr().trunc(m);
     }
-    constexpr Poly exp(int m) const {
+    Poly exp(int m) const {
         Poly x{1};
         int k = 1;
         while (k < m) {
@@ -239,19 +214,19 @@ struct Poly : public std::vector<MInt<P>> {
         }
         return x.trunc(m);
     }
-    constexpr Poly pow(int k, int m) const {
+    Poly pow(int k, int m) const {
         int i = 0;
-        while (i < this->size() && (*this)[i] == 0) {
+        while (i < this->size() && (*this)[i].x == 0) {
             i++;
         }
         if (i == this->size() || 1LL * i * k >= m) {
             return Poly(m);
         }
-        Value v = (*this)[i];
+        Z v = (*this)[i];
         auto f = shift(-i) * v.inv();
         return (f.log(m - i * k) * k).exp(m - i * k).shift(i * k) * power(v, k);
     }
-    constexpr Poly sqrt(int m) const {
+    Poly sqrt(int m) const {
         Poly x{1};
         int k = 1;
         while (k < m) {
@@ -260,7 +235,7 @@ struct Poly : public std::vector<MInt<P>> {
         }
         return x.trunc(m);
     }
-    constexpr Poly mulT(Poly b) const {
+    Poly mulT(Poly b) const {
         if (b.size() == 0) {
             return Poly();
         }
@@ -268,13 +243,13 @@ struct Poly : public std::vector<MInt<P>> {
         std::reverse(b.begin(), b.end());
         return ((*this) * b).shift(-(n - 1));
     }
-    constexpr std::vector<Value> eval(std::vector<Value> x) const {
+    std::vector<Z> eval(std::vector<Z> x) const {
         if (this->size() == 0) {
-            return std::vector<Value>(x.size(), 0);
+            return std::vector<Z>(x.size(), 0);
         }
         const int n = std::max(x.size(), this->size());
         std::vector<Poly> q(4 * n);
-        std::vector<Value> ans(x.size());
+        std::vector<Z> ans(x.size());
         x.resize(n);
         std::function<void(int, int, int)> build = [&](int p, int l, int r) {
             if (r - l == 1) {
@@ -294,8 +269,8 @@ struct Poly : public std::vector<MInt<P>> {
                 }
             } else {
                 int m = (l + r) / 2;
-                work(2 * p, l, m, num.mulT(q[2 * p + 1]).resize(m - l));
-                work(2 * p + 1, m, r, num.mulT(q[2 * p]).resize(r - m));
+                work(2 * p, l, m, num.mulT(q[2 * p + 1]).trunc(m - l));
+                work(2 * p + 1, m, r, num.mulT(q[2 * p]).trunc(r - m));
             }
         };
         work(1, 0, n, mulT(q[1].inv(n)));
