@@ -1,17 +1,13 @@
 struct Comb {
     int n;
-    std::vector<Z> _fac;
-    std::vector<Z> _invfac;
-    std::vector<Z> _inv;
-    
+    std::vector<Z> _fac, _invfac, _inv;
+
     Comb() : n{0}, _fac{1}, _invfac{1}, _inv{0} {}
-    
+
     void init(int m) {
-        if (m <= n) return;
         _fac.resize(m + 1);
         _invfac.resize(m + 1);
         _inv.resize(m + 1);
-        
         for (int i = n + 1; i <= m; i++) {
             _fac[i] = _fac[i - 1] * i;
         }
