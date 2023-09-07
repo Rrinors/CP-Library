@@ -10,9 +10,6 @@ constexpr i64 eps<i64> = 0;
 template<>
 constexpr double eps<double> = 1E-6;
 
-template<>
-constexpr long double eps<long double> = 1E-8;
-
 template<class T>
 constexpr int sgn(T x) {
     if (x > eps<T>) {
@@ -28,10 +25,10 @@ template<class T>
 struct Point {
     T x;
     T y;
-    Point(T x_ = 0, T y_ = 0) : x(x_), y(y_) {}
+    constexpr Point(T x_ = 0, T y_ = 0) : x(x_), y(y_) {}
 
     template<class U>
-    operator Point<U>() {
+    constexpr operator Point<U>() {
         return Point<U>(U(x), U(y));
     }
     constexpr Point &operator+=(Point p) & {
@@ -121,7 +118,7 @@ template<class T>
 struct Line {
     Point<T> a;
     Point<T> b;
-    Line(Point<T> a_ = Point<T>(), Point<T> b_ = Point<T>()) : a(a_), b(b_) {}
+    constexpr Line(Point<T> a_ = Point<T>(), Point<T> b_ = Point<T>()) : a(a_), b(b_) {}
 };
 
 template<class T>
@@ -130,9 +127,17 @@ constexpr bool pointOnLineLeft(Point<T> p, Line<T> l) {
 }
 
 template<class T>
+constexpr bool pointOnLineRight(Point<T> p, Line<T> l) {
+    return sgn(cross(l.b - l.a, p - l.a)) < 0;
+}
+
+template<class T>
 constexpr bool pointOnSegment(Point<T> p, Line<T> l) {
-    return sgn(cross(p - l.a, l.b - l.a)) == 0 && std::min(l.a.x, l.b.x) <= p.x && p.x <= std::max(l.a.x, l.b.x)
-        && std::min(l.a.y, l.b.y) <= p.y && p.y <= std::max(l.a.y, l.b.y);
+    return sgn(cross(p - l.a, l.b - l.a)) == 0
+        && std::min(l.a.x, l.b.x) <= p.x
+        && std::min(l.a.y, l.b.y) <= p.y
+        && p.x <= std::max(l.a.x, l.b.x)
+        && p.y <= std::max(l.a.y, l.b.y);
 }
 
 template<class T>
@@ -208,22 +213,22 @@ constexpr std::tuple<int, Point<T>, Point<T>> segmentIntersection(Line<T> l1, Li
 }
 
 template<class T>
-constexpr bool pointInPolygon(Point<T> a, std::vector<Point<T>> p) {
-    int n = p.size();
+constexpr bool pointInPolygon(Point<T> p, std::vector<Point<T>> a) {
+    int n = a.size();
     for (int i = 0; i < n; i++) {
-        if (pointOnSegment(a, Line(p[i], p[(i + 1) % n]))) {
+        if (pointOnSegment(p, Line(a[i], a[(i + 1) % n]))) {
             return true;
         }
     }
 
     int t = 0;
     for (int i = 0; i < n; i++) {
-        auto u = p[i];
-        auto v = p[(i + 1) % n];
-        if (u.x < a.x && v.x >= a.x && pointOnLineLeft(a, Line(v, u))) {
+        auto u = a[i];
+        auto v = a[(i + 1) % n];
+        if (u.x < p.x && v.x >= p.x && pointOnLineLeft(p, Line(v, u))) {
             t ^= 1;
         }
-        if (u.x >= a.x && v.x < a.x && pointOnLineLeft(a, Line(u, v))) {
+        if (u.x >= p.x && v.x < p.x && pointOnLineLeft(p, Line(u, v))) {
             t ^= 1;
         }
     }
@@ -237,56 +242,25 @@ constexpr bool pointInPolygon(Point<T> a, std::vector<Point<T>> p) {
 template<class T>
 constexpr int pointInConvex(Point<T> p, const std::vector<Point<T>> &a) {
     int n = a.size();
-    if (sgn(cross(a[1] - a[0], p - a[0])) < 0 || sgn(cross(a[n - 1] - a[0], p - a[0])) > 0) {
+    if (pointOnLineRight(p, {a[0], a[1]}) || pointOnLineLeft(p, {a[0], a[n - 1]})) {
         return 0;
     }
 
     int lo = 1, hi = n - 1;
     while (lo < hi) {
-        int m = (lo + hi) / 2;
-        if (sgn(cross(a[m + 1] - a[0], p - a[0])) >= 0) {
-            lo = m + 1;
+        int m = (lo + hi + 1) / 2;
+        if (pointOnLineRight(p, {a[0], a[m]})) {
+            hi = m - 1;
         } else {
-            hi = m;
+            lo = m;
         }
     }
 
-    if (lo == n - 1) {
-        return sgn(dot(p - a[0], p - a[lo])) <= 0;
-    }
-
-    if (sgn(cross(a[lo + 1] - a[lo], p - a[lo])) == 0 || lo == 1 && pointOnSegment(p, {a[0], a[lo]})) {
+    if ((lo == 1 || lo == n - 1) && pointOnSegment(p, {a[0], a[lo]}) || lo < n - 1 && pointOnSegment(p, {a[lo], a[lo + 1]})) {
         return 1;
     }
-
-    if (sgn(cross(a[lo + 1] - a[lo], p - a[lo])) > 0) {
+    if (lo < n - 1 && pointOnLineLeft(p, {a[lo], a[lo + 1]})) {
         return 2;
     }
-
     return 0;
-}
-
-template<class T>
-constexpr std::vector<Point<T>> convexHull(std::vector<Point<T>> a) {
-    int n = a.size();
-    std::sort(a.begin(), a.end());
-
-    std::vector<Point<T>> stk;
-    for (int i = 0; i < n; i++) {
-        while (stk.size() > 1 && sgn(cross(stk.rbegin()[0] - stk.rbegin()[1], a[i] - stk.rbegin()[0])) <= 0) {
-            stk.pop_back();
-        }
-        stk.push_back(a[i]);
-    }
-
-    int sz = stk.size();
-    for (int i = n - 2; i >= 0; i--) {
-        while (stk.size() > sz && sgn(cross(stk.rbegin()[0] - stk.rbegin()[1], a[i] - stk.rbegin()[0])) <= 0) {
-            stk.pop_back();
-        }
-        stk.push_back(a[i]);
-    }
-
-    stk.pop_back();
-    return stk;
 }
