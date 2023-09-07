@@ -1,6 +1,6 @@
 struct Frac {
-    i64 x;
-    i64 y;
+    i64 x, y;
+
     Frac() : x{0}, y{1} {}
     Frac(i64 x, i64 y = 1) {
         assert(y != 0);
