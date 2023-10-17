@@ -231,7 +231,7 @@ struct Poly : public std::vector<Z> {
         int k = 1;
         while (k < m) {
             k *= 2;
-            x = (x + (trunc(k) * x.inv(k)).trunc(k)) * CInv<2, P>;
+            x = (x + (trunc(k) * x.inv(k)).trunc(k)) * ((P + 1) / 2);
         }
         return x.trunc(m);
     }
