@@ -7,6 +7,7 @@ struct SegmentTree {
     SegmentTree(int n) {
         init(n);
     }
+
     template<class F>
     SegmentTree(std::vector<F> a_) {
         init(a_);
@@ -16,6 +17,7 @@ struct SegmentTree {
         this->n = n;
         a.assign(4 * n, T());
     }
+
     template<class F>
     void init(std::vector<F> a_) {
         init(a_.size());
@@ -35,6 +37,7 @@ struct SegmentTree {
     void pull(int p) {
         a[p] = a[2 * p] + a[2 * p + 1];
     }
+
     T rangeQuery(int p, int l, int r, int x, int y) {
         if (x > r || y < l) {
             return T();
@@ -45,9 +48,11 @@ struct SegmentTree {
         int m = (l + r) / 2;
         return rangeQuery(2 * p, l, m, x, y) + rangeQuery(2 * p + 1, m + 1, r, x, y);
     }
+
     T rangeQuery(int x, int y) {
         return rangeQuery(1, 0, n - 1, x, y);
     }
+
     void modify(int p, int l, int r, int x, T v) {
         if (l == r) {
             a[p] = v;
@@ -61,45 +66,8 @@ struct SegmentTree {
         }
         pull(p);
     }
+
     void modify(int x, T v) {
         modify(1, 0, n - 1, x, v);
-    }
-    template<class F>
-    int findFirst(int p, int l, int r, int x, int y, F pred) {
-        if (l > y || r < x || !pred(a[p])) {
-            return -1;
-        }
-        if (l == r) {
-            return l;
-        }
-        int m = (l + r) / 2;
-        int res = findFirst(2 * p, l, m, x, y, pred);
-        if (res == -1) {
-            res = findFirst(2 * p + 1, m + 1, r, x, y, pred);
-        }
-        return res;
-    }
-    template<class F>
-    int findFirst(int l, int r, F pred) {
-        return findFirst(1, 0, n, l, r, pred);
-    }
-    template<class F>
-    int findLast(int p, int l, int r, int x, int y, F pred) {
-        if (l > y || r < x || !pred(a[p])) {
-            return -1;
-        }
-        if (l == r) {
-            return l;
-        }
-        int m = (l + r) / 2;
-        int res = findLast(2 * p + 1, m + 1, r, x, y, pred);
-        if (res == -1) {
-            res = findLast(2 * p, l, m, x, y, pred);
-        }
-        return res;
-    }
-    template<class F>
-    int findLast(int l, int r, F pred) {
-        return findLast(1, 0, n, l, r, pred);
     }
 };
