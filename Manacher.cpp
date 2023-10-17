@@ -1,9 +1,10 @@
-std::vector<int> manacher(std::string &s) {
+std::vector<int> manacher(std::string s) {
     int n = s.length();
     std::string t(2 * n + 1, '#');
     for (int i = 0; i < n; i++) {
         t[2 * i + 1] = s[i];
     }
+
     n = 2 * n + 1;
     std::vector<int> p(n);
     for (int i = 0, l = 0, r = -1; i < n; i++) {
@@ -16,5 +17,6 @@ std::vector<int> manacher(std::string &s) {
             l = i - p[i];
         }
     }
+
     return p;
 }
