@@ -23,8 +23,9 @@ constexpr int sgn(T x) {
 
 template<class T>
 struct Point {
-    T x;
-    T y;
+    T x, y;
+
+    constexpr Point() : x{}, y{} {}
     constexpr Point(T x_ = 0, T y_ = 0) : x(x_), y(y_) {}
 
     template<class U>
@@ -64,11 +65,11 @@ struct Point {
     friend constexpr Point operator*(Point a, T b) {
         return a *= b;
     }
-    friend constexpr Point operator/(Point a, T b) {
-        return a /= b;
-    }
     friend constexpr Point operator*(T a, Point b) {
         return b *= a;
+    }
+    friend constexpr Point operator/(Point a, T b) {
+        return a /= b;
     }
     friend constexpr bool operator==(Point a, Point b) {
         return sgn(a.x - b.x) == 0 && sgn(a.y - b.y) == 0;
@@ -116,9 +117,10 @@ constexpr Point<double> rotate(Point<T> p, double t) {
 
 template<class T>
 struct Line {
-    Point<T> a;
-    Point<T> b;
-    constexpr Line(Point<T> a_ = Point<T>(), Point<T> b_ = Point<T>()) : a(a_), b(b_) {}
+    Point<T> a, b;
+
+    constexpr Line() : a{}, b{} {}
+    constexpr Line(Point<T> a_, Point<T> b_) : a(a_), b(b_) {}
 };
 
 template<class T>
