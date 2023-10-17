@@ -1,4 +1,4 @@
-std::pair<int, std::vector<int>> SCC(auto &adj) {
+std::pair<int, std::vector<int>> SCC(auto adj) {
     int n = adj.size();
     std::vector<int> dfn(n, -1), low(n), id(n, -1), stk;
     int now = 0, tot = 0;
