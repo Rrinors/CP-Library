@@ -1,12 +1,12 @@
 struct SA {
     int n;
     std::vector<int> sa, rk, height;
-    SA(auto &s, int m = 128) {
+    SA(auto s, int m = 128) {
         init(s, m);
     }
     SA() {}
 
-    void init(auto &s, int m = 128) {
+    void init(auto s, int m = 128) {
         n = s.size();
         sa.resize(n);
         rk.resize(n);
