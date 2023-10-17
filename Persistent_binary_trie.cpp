@@ -1,6 +1,3 @@
-
-constexpr int N = 600010;
-
 int tot = 0;
 int trie[25 * N][2], val[25 * N];
 
