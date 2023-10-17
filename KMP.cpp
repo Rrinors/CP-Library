@@ -11,7 +11,7 @@ std::vector<int> kmp(std::string s) {
     return next;
 }
 
-std::vector<int> exkmp(std::string s) {
+std::vector<int> zFunction(std::string s) {
     int n = s.length();
     std::vector<int> z(n);
     for (int i = 1, l = 0, r = 0; i < n; i++) {
