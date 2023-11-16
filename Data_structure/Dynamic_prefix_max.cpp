@@ -30,7 +30,6 @@ void modify(int p, int l, int r, int x, int y) {
         seg[p].ans = (y > 0);
         return;
     }
-
     int m = (l + r) / 2;
     if (x <= m) {
         modify(2 * p, l, m, x, y);

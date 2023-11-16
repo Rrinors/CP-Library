@@ -90,8 +90,8 @@ void solve_ug() {
     std::vector<bool> vis(e.size());
     std::vector<int> stk, cur(n);
     auto dfs = [&](auto self, int x) -> void {
-        for (int &i = cur[x]; i < g[x].size(); ++i) {
-            int j = g[x][i];
+        for (int &i = cur[x]; i < g[x].size(); ) {
+            int j = g[x][i++];
             int v = e[j];
             if (!vis[j]) {
                 vis[j] = vis[j ^ 1] = true;

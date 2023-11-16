@@ -5,7 +5,7 @@ struct PAM {
         std::array<int, ALPHABET> ch;
         Node() : len{}, link{}, ch{} {}
     } t[N + 2];
-
+    
     int p, tot, cur;
     int s[N];
 
